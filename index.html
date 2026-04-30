@@ -195,8 +195,17 @@ function IdentifyTab({ onAddPlant }) {
 
   const identify = async () => {
     setLoading(true); setError(null);
-    try { setResult(await identifyPlant(image.base64, image.type)); }
-    catch (e) { setError("Could not identify — " + e.message); }
+    try {
+      const data = await identifyPlant(image.base64, image.type);
+      if (data.error) {
+        setError("API error: " + data.error + (data.detail ? " - " + data.detail : ""));
+      } else if (!data.common_name) {
+        setError("Unexpected response: " + JSON.stringify(data));
+      } else {
+        setResult(data);
+      }
+    }
+    catch (e) { setError("Could not identify - " + e.message); }
     finally { setLoading(false); }
   };
 
