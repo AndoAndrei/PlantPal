@@ -8,13 +8,13 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API key not configured" });
 
   try {
-    // Convert base64 to buffer and create form data
     const imageBuffer = Buffer.from(image, "base64");
     const ext = mimeType === "image/png" ? "png" : "jpg";
 
-    const { FormData, File } = await import("formdata-node");
+    // Use native Node.js FormData (available in Node 18+)
     const form = new FormData();
-    form.append("images", new File([imageBuffer], `plant.${ext}`, { type: mimeType }));
+    const blob = new Blob([imageBuffer], { type: mimeType });
+    form.append("images", blob, `plant.${ext}`);
     form.append("organs", "auto");
 
     const response = await fetch(
@@ -22,16 +22,15 @@ export default async function handler(req, res) {
       { method: "POST", body: form }
     );
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const err = await response.json();
-      return res.status(200).json({ error: "PlantNet error", detail: JSON.stringify(err) });
+      return res.status(200).json({ error: "PlantNet error", detail: JSON.stringify(data) });
     }
 
-    const data = await response.json();
     const best = data.results?.[0];
-
     if (!best) {
-      return res.status(200).json({ error: "No results", detail: JSON.stringify(data) });
+      return res.status(200).json({ error: "No results found", detail: JSON.stringify(data) });
     }
 
     const score = Math.round((best.score || 0) * 100);
