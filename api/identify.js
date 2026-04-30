@@ -4,51 +4,49 @@ export default async function handler(req, res) {
   const { image, mimeType } = req.body;
   if (!image || !mimeType) return res.status(400).json({ error: "Missing image or mimeType" });
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.PLANTNET_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "API key not configured" });
 
   try {
+    // Convert base64 to buffer and create form data
+    const imageBuffer = Buffer.from(image, "base64");
+    const ext = mimeType === "image/png" ? "png" : "jpg";
+
+    const { FormData, File } = await import("formdata-node");
+    const form = new FormData();
+    form.append("images", new File([imageBuffer], `plant.${ext}`, { type: mimeType }));
+    form.append("organs", "auto");
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: mimeType, data: image } },
-              { text: `You are a plant identification expert. Identify the plant in this image and respond ONLY with a JSON object, no markdown, no explanation, no backticks:
-{"common_name":"...","scientific_name":"...","confidence":"High|Medium|Low","brief_description":"one sentence about the plant","care_tip":"one practical care tip","watering_frequency_days":7}
-If you cannot identify a plant, use "Unknown Plant" for names. Always provide a watering_frequency_days number between 1 and 30.` }
-            ]
-          }],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
-        })
-      }
+      `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}&lang=en&include-related-images=false`,
+      { method: "POST", body: form }
     );
 
-    const raw = await response.json();
-
-    // Return raw so we can debug if needed
-    if (!raw.candidates || !raw.candidates[0]) {
-      return res.status(200).json({ error: "No candidates", detail: JSON.stringify(raw) });
+    if (!response.ok) {
+      const err = await response.json();
+      return res.status(200).json({ error: "PlantNet error", detail: JSON.stringify(err) });
     }
 
-    const text = raw.candidates[0]?.content?.parts[0]?.text || "";
+    const data = await response.json();
+    const best = data.results?.[0];
 
-    if (!text) {
-      return res.status(200).json({ error: "Empty text from Gemini", detail: JSON.stringify(raw) });
+    if (!best) {
+      return res.status(200).json({ error: "No results", detail: JSON.stringify(data) });
     }
 
-    // Strip any markdown backticks just in case
-    const cleaned = text.replace(/```json|```/g, "").trim();
+    const score = Math.round((best.score || 0) * 100);
+    const confidence = score >= 70 ? "High" : score >= 40 ? "Medium" : "Low";
+    const commonName = best.species?.commonNames?.[0] || best.species?.scientificNameWithoutAuthor || "Unknown Plant";
+    const scientificName = best.species?.scientificNameWithoutAuthor || "—";
 
-    try {
-      const result = JSON.parse(cleaned);
-      return res.status(200).json(result);
-    } catch {
-      return res.status(200).json({ error: "JSON parse failed", detail: cleaned });
-    }
+    return res.status(200).json({
+      common_name: commonName,
+      scientific_name: scientificName,
+      confidence,
+      brief_description: `Identified with ${score}% confidence via PlantNet.`,
+      care_tip: "Check a plant care guide for specific watering and light requirements.",
+      watering_frequency_days: 7
+    });
 
   } catch (err) {
     return res.status(500).json({ error: "Request failed", detail: err.message });
