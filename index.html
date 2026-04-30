@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#16a34a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PlantPal" />
+  <title>PlantPal 🌿</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-50: #f0fdf4; --green-100: #dcfce7; --green-200: #bbf7d0;
+      --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-900: #14532d;
+      --amber-100: #fef3c7; --amber-800: #92400e;
+      --red-100: #fee2e2; --red-700: #b91c1c;
+      --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+      --gray-400: #9ca3af; --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+    }
+    html, body { height: 100%; background: var(--green-50); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    #root { min-height: 100vh; }
+    .app { min-height: 100vh; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; background: linear-gradient(170deg, #f0fdf4 0%, #f7fef4 50%, #f0f9ff 100%); }
+    .header { display: flex; align-items: center; gap: 12px; padding: 20px 18px 14px; background: rgba(255,255,255,0.8); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(34,197,94,0.12); position: sticky; top: 0; z-index: 20; }
+    .header-title { font-size: 24px; font-weight: 800; color: var(--green-900); letter-spacing: -0.5px; }
+    .header-sub { font-size: 11px; color: var(--gray-500); margin-top: 2px; font-weight: 500; }
+    .nav { display: flex; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(34,197,94,0.1); position: sticky; top: 67px; z-index: 19; }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px; border: none; background: transparent; cursor: pointer; border-bottom: 2.5px solid transparent; transition: all 0.15s; color: var(--gray-500); font-family: inherit; }
+    .nav-btn.active { border-bottom-color: var(--green-600); background: rgba(34,197,94,0.05); color: var(--green-700); }
+    .nav-icon { font-size: 19px; }
+    .nav-label { font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
+    .tab-content { flex: 1; padding: 22px 16px 100px; }
+    .tab-title { font-size: 22px; font-weight: 800; color: var(--green-900); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .tab-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; }
+    .dropzone { border: 2px dashed var(--green-200); border-radius: 18px; min-height: 180px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.5); transition: all 0.2s; margin-bottom: 12px; overflow: hidden; }
+    .dropzone.has-image { border: 2px solid var(--green-500); min-height: 220px; }
+    .drop-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px; }
+    .drop-icon { font-size: 44px; }
+    .drop-text { font-size: 14px; color: var(--gray-400); font-weight: 500; }
+    .preview-img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
+    .btn { width: 100%; padding: 13px 0; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 8px; transition: all 0.15s; }
+    .btn-primary { background: linear-gradient(135deg, var(--green-500), var(--green-600)); color: #fff; box-shadow: 0 4px 20px rgba(34,197,94,0.25); }
+    .btn-primary:disabled { opacity: 0.6; cursor: default; }
+    .btn-ghost { background: transparent; color: var(--gray-500); border: 1.5px solid var(--gray-200); }
+    .loading-card { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 16px 20px; margin-top: 12px; font-size: 14px; color: var(--gray-700); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .spinner { width: 20px; height: 20px; border: 2.5px solid var(--green-100); border-top-color: var(--green-500); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-card { background: var(--red-100); border: 1px solid #fecaca; color: var(--red-700); border-radius: 12px; padding: 14px 16px; font-size: 13px; margin-top: 12px; }
+    .result-card { background: #fff; border-radius: 18px; padding: 18px 16px; margin-top: 16px; box-shadow: 0 4px 20px rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.15); }
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .common-name { font-size: 21px; font-weight: 800; color: var(--green-900); }
+    .sci-name { font-size: 12px; color: var(--gray-500); font-style: italic; margin-top: 2px; }
+    .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+    .badge-high { background: var(--green-100); color: var(--green-700); }
+    .badge-medium { background: var(--amber-100); color: var(--amber-800); }
+    .badge-low { background: var(--red-100); color: var(--red-700); }
+    .result-desc { font-size: 13px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px; }
+    .tip-box { display: flex; gap: 8px; background: var(--green-50); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--green-900); align-items: flex-start; margin-bottom: 10px; }
+    .water-suggest { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--gray-700); padding: 10px 0 0; border-top: 1px solid var(--gray-100); }
+    .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .symptom-btn { padding: 13px 8px; border: 1.5px solid var(--gray-200); border-radius: 12px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all 0.15s; text-align: center; }
+    .symptom-btn.active { border-color: var(--green-500); background: var(--green-50); color: var(--green-900); }
+    .advice-card { background: #fff; border-radius: 18px; padding: 18px 16px; box-shadow: 0 4px 20px rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.15); }
+    .advice-label { font-size: 10px; font-weight: 700; color: var(--green-600); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+    .advice-text { font-size: 14px; color: var(--gray-700); line-height: 1.65; }
+    .advice-divider { height: 1px; background: var(--gray-100); margin: 14px 0; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 20px; }
+    .empty-text { font-size: 14px; color: var(--gray-400); text-align: center; line-height: 1.5; }
+    .add-card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); border: 1px solid var(--gray-100); display: flex; flex-direction: column; gap: 10px; }
+    .input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-family: inherit; font-size: 14px; color: var(--gray-900); background: var(--gray-50); outline: none; transition: border-color 0.15s; }
+    .input:focus { border-color: var(--green-500); background: #fff; }
+    .input-small { width: 72px; text-align: center; }
+    .freq-row { display: flex; align-items: center; gap: 8px; }
+    .freq-label { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
+    .plant-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .plant-card { background: #fff; border-radius: 14px; padding: 13px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--gray-100); }
+    .plant-card.urgent { border-color: #fde68a; background: #fffdf5; }
+    .plant-info { flex: 1; min-width: 0; }
+    .plant-name { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .plant-meta { font-size: 11px; color: var(--gray-400); }
+    .status-badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 20px; white-space: nowrap; }
+    .status-ok { background: var(--green-100); color: var(--green-700); }
+    .status-today { background: var(--amber-100); color: var(--amber-800); }
+    .status-urgent { background: var(--red-100); color: var(--red-700); }
+    .plant-actions { display: flex; gap: 5px; }
+    .action-btn { width: 34px; height: 34px; border: none; border-radius: 9px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-weight: 700; font-family: inherit; }
+    .action-water { background: #e0f2fe; color: #0369a1; }
+    .action-cal { background: var(--green-100); color: var(--green-700); }
+    .action-remove { background: var(--red-100); color: var(--red-700); font-size: 12px; }
+    .cal-hint { display: flex; gap: 10px; background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 12px 14px; font-size: 12px; color: var(--green-900); line-height: 1.5; align-items: flex-start; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function useLocalStorage(key, initial) {
+  const [val, setVal] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(key)) ?? initial; }
+    catch { return initial; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+  }, [key, val]);
+  return [val, setVal];
+}
+
+function today() { return new Date().toISOString().split("T")[0]; }
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function generateICS(plant) {
+  const start = addDays(plant.lastWatered, plant.freq);
+  const dtstart = start.toISOString().split("T")[0].replace(/-/g, "");
+  const uid = `plantpal-${plant.id}@plantpal.app`;
+  const now = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  return [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PlantPal//EN", "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${uid}`, `DTSTAMP:${now}`,
+    `DTSTART;VALUE=DATE:${dtstart}`,
+    `DTEND;VALUE=DATE:${dtstart}`,
+    `SUMMARY:💧 Water ${plant.name}`,
+    `DESCRIPTION:Water your ${plant.name} — every ${plant.freq} days.`,
+    `RRULE:FREQ=DAILY;INTERVAL=${plant.freq}`,
+    "BEGIN:VALARM", "TRIGGER:-PT0M", "ACTION:DISPLAY",
+    `DESCRIPTION:Water ${plant.name} today!`, "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR"
+  ].join("\r\n");
+}
+
+function downloadICS(plant) {
+  const blob = new Blob([generateICS(plant)], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `water-${plant.name.replace(/\s+/g, "-").toLowerCase()}.ics`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+async function identifyPlant(base64, mediaType) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+        { type: "text", text: `Identify the plant and respond ONLY with JSON, no markdown:
+{"common_name":"...","scientific_name":"...","confidence":"High|Medium|Low","brief_description":"one sentence","care_tip":"one tip","watering_frequency_days":7}` }
+      ]}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content?.find(b => b.type === "text")?.text || "{}";
+  try { return JSON.parse(text.replace(/```json|```/g, "").trim()); }
+  catch { return { common_name: "Unknown", scientific_name: "—", confidence: "Low", brief_description: text, care_tip: "", watering_frequency_days: 7 }; }
+}
+
+const SYMPTOMS = [
+  { id: "yellow", label: "🟡 Yellow Leaves", cause: "Overwatering or nutrient deficiency", action: "Reduce watering and check drainage. Let soil dry between waterings." },
+  { id: "brown", label: "🟤 Brown Tips", cause: "Low humidity or underwatering", action: "Mist leaves regularly and water more consistently." },
+  { id: "wilting", label: "🥀 Wilting", cause: "Water stress (over or under)", action: "Check soil moisture immediately — water if dry, let dry out if soggy." },
+  { id: "spots", label: "🔵 Dark Spots", cause: "Fungal infection or cold damage", action: "Remove affected leaves and improve air circulation." },
+  { id: "leggy", label: "🌿 Leggy Growth", cause: "Insufficient light", action: "Move closer to a bright window or add a grow light." },
+  { id: "pale", label: "🪶 Pale Colour", cause: "Too much direct sun or iron deficiency", action: "Move to indirect light and consider a liquid fertiliser." },
+];
+
+// ── Identify ──────────────────────────────────────────────────────────────────
+function IdentifyTab({ onAddPlant }) {
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [added, setAdded] = useState(false);
+  const fileRef = useRef();
+
+  const handleFile = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreview(e.target.result);
+      setImage({ base64: e.target.result.split(",")[1], type: file.type });
+      setResult(null); setError(null); setAdded(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const identify = async () => {
+    setLoading(true); setError(null);
+    try { setResult(await identifyPlant(image.base64, image.type)); }
+    catch { setError("Could not identify — check connection and try again."); }
+    finally { setLoading(false); }
+  };
+
+  const clear = () => { setPreview(null); setImage(null); setResult(null); setError(null); };
+
+  const handleAdd = () => {
+    onAddPlant({ name: result.common_name, freq: result.watering_frequency_days || 7 });
+    setAdded(true);
+  };
+
+  return (
+    <div className="tab-content">
+      <h2 className="tab-title">Plant Identifier</h2>
+      <p className="tab-sub">Upload a photo to identify your plant.</p>
+      <div className={`dropzone ${preview ? "has-image" : ""}`}
+        onClick={() => fileRef.current.click()}
+        onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+        onDragOver={e => e.preventDefault()}>
+        {preview
+          ? <img src={preview} className="preview-img" alt="plant" />
+          : <div className="drop-placeholder">
+              <div className="drop-icon">🌿</div>
+              <div className="drop-text">Tap or drag an image here</div>
+            </div>}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden"
+        onChange={e => handleFile(e.target.files[0])} />
+      {preview && !loading && <button className="btn btn-primary" onClick={identify}>Identify Plant</button>}
+      {preview && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
+      {loading && <div className="loading-card"><div className="spinner" /><span>Analysing your plant…</span></div>}
+      {error && <div className="error-card">{error}</div>}
+      {result && !loading && (
+        <div className="result-card">
+          <div className="result-header">
+            <div>
+              <div className="common-name">{result.common_name}</div>
+              <div className="sci-name">{result.scientific_name}</div>
+            </div>
+            <div className={`badge badge-${result.confidence?.toLowerCase()}`}>{result.confidence}</div>
+          </div>
+          {result.brief_description && <p className="result-desc">{result.brief_description}</p>}
+          {result.care_tip && <div className="tip-box"><span>💡</span><span>{result.care_tip}</span></div>}
+          {result.watering_frequency_days && (
+            <div className="water-suggest">
+              <span>💧</span>
+              <span>Suggested watering: every <strong>{result.watering_frequency_days} days</strong></span>
+            </div>
+          )}
+          <button className={`btn ${added ? "btn-ghost" : "btn-primary"}`} style={{marginTop:12}}
+            onClick={handleAdd} disabled={added}>
+            {added ? "✓ Added to Reminders" : "Add to Reminders"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Health ────────────────────────────────────────────────────────────────────
+function HealthTab() {
+  const [symptom, setSymptom] = useState("");
+  const advice = SYMPTOMS.find(s => s.id === symptom);
+  return (
+    <div className="tab-content">
+      <h2 className="tab-title">Plant Health</h2>
+      <p className="tab-sub">Select a symptom to get care advice.</p>
+      <div className="symptom-grid">
+        {SYMPTOMS.map(s => (
+          <button key={s.id} className={`symptom-btn ${symptom === s.id ? "active" : ""}`}
+            onClick={() => setSymptom(symptom === s.id ? "" : s.id)}>{s.label}</button>
+        ))}
+      </div>
+      {advice && (
+        <div className="advice-card">
+          <div className="advice-label">Likely Cause</div>
+          <div className="advice-text">{advice.cause}</div>
+          <div className="advice-divider" />
+          <div className="advice-label">Recommended Action</div>
+          <div className="advice-text">{advice.action}</div>
+        </div>
+      )}
+      {!symptom && <div className="empty-state"><div style={{fontSize:48}}>🌱</div><div className="empty-text">Select a symptom above</div></div>}
+    </div>
+  );
+}
+
+// ── Reminders ─────────────────────────────────────────────────────────────────
+function RemindersTab({ pending, onPendingClear }) {
+  const [plants, setPlants] = useLocalStorage("plantpal_v2", []);
+  const [name, setName] = useState("");
+  const [freq, setFreq] = useState(7);
+  const [exported, setExported] = useState({});
+
+  useEffect(() => {
+    if (pending) { setName(pending.name); setFreq(pending.freq); onPendingClear(); }
+  }, [pending]);
+
+  const add = () => {
+    if (!name.trim()) return;
+    setPlants([...plants, { id: Date.now(), name: name.trim(), freq: Number(freq), lastWatered: today() }]);
+    setName(""); setFreq(7);
+  };
+
+  const waterNow = id => setPlants(plants.map(p => p.id === id ? { ...p, lastWatered: today() } : p));
+  const remove = id => setPlants(plants.filter(p => p.id !== id));
+
+  const handleExport = (plant) => {
+    downloadICS(plant);
+    setExported(e => ({ ...e, [plant.id]: true }));
+    setTimeout(() => setExported(e => ({ ...e, [plant.id]: false })), 3000);
+  };
+
+  const getStatus = (plant) => {
+    const next = addDays(plant.lastWatered, plant.freq);
+    const diff = daysBetween(today(), next.toISOString().split("T")[0]);
+    if (diff < 0) return { label: `${Math.abs(diff)}d overdue`, cls: "status-urgent", urgent: true };
+    if (diff === 0) return { label: "Water today!", cls: "status-today", urgent: true };
+    return { label: `In ${diff} day${diff !== 1 ? "s" : ""}`, cls: "status-ok", urgent: false };
+  };
+
+  return (
+    <div className="tab-content">
+      <h2 className="tab-title">Watering Reminders</h2>
+      <p className="tab-sub">Add plants and export recurring reminders to your calendar.</p>
+      <div className="add-card">
+        <input className="input" placeholder="Plant name (e.g. Peace Lily)"
+          value={name} onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && add()} />
+        <div className="freq-row">
+          <label className="freq-label">Water every</label>
+          <input type="number" min="1" max="90" className="input input-small"
+            value={freq} onChange={e => setFreq(e.target.value)} />
+          <span className="freq-label">days</span>
+        </div>
+        <button className="btn btn-primary" onClick={add}>Add Plant</button>
+      </div>
+      {plants.length === 0 && (
+        <div className="empty-state"><div style={{fontSize:48}}>💧</div><div className="empty-text">No plants yet. Add one above!</div></div>
+      )}
+      <div className="plant-list">
+        {plants.map(plant => {
+          const s = getStatus(plant);
+          return (
+            <div key={plant.id} className={`plant-card ${s.urgent ? "urgent" : ""}`}>
+              <div className="plant-info">
+                <div className="plant-name">{plant.name}</div>
+                <div className="plant-meta">Every {plant.freq} days · Last watered {plant.lastWatered}</div>
+              </div>
+              <div className={`status-badge ${s.cls}`}>{s.label}</div>
+              <div className="plant-actions">
+                <button className="action-btn action-water" onClick={() => waterNow(plant.id)} title="Mark watered">💧</button>
+                <button className="action-btn action-cal" onClick={() => handleExport(plant)} title="Add to Calendar">
+                  {exported[plant.id] ? "✓" : "📅"}
+                </button>
+                <button className="action-btn action-remove" onClick={() => remove(plant.id)} title="Remove">✕</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {plants.length > 0 && (
+        <div className="cal-hint">
+          <span>📅</span>
+          <span>Tap <strong>📅</strong> on any plant to download a recurring .ics reminder — tap the downloaded file to add it to Apple Calendar.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function App() {
+  const [tab, setTab] = useState("identify");
+  const [pending, setPending] = useState(null);
+
+  const handleAddPlant = (plant) => { setPending(plant); setTab("reminders"); };
+
+  return (
+    <div className="app">
+      <header className="header">
+        <span style={{fontSize:28}}>🌿</span>
+        <div>
+          <div className="header-title">PlantPal</div>
+          <div className="header-sub">Your personal plant assistant</div>
+        </div>
+      </header>
+      <nav className="nav">
+        {[["identify","🔍","Identify"],["health","🩺","Health"],["reminders","💧","Reminders"]].map(([id,icon,label]) => (
+          <button key={id} className={`nav-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>
+            <span className="nav-icon">{icon}</span>
+            <span className="nav-label">{label}</span>
+          </button>
+        ))}
+      </nav>
+      {tab === "identify" && <IdentifyTab onAddPlant={handleAddPlant} />}
+      {tab === "health" && <HealthTab />}
+      {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
