@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     form.append("organs", "auto");
 
     const response = await fetch(
-      `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}&lang=en&include-related-images=false`,
+      `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}&include-related-images=false`,
       { method: "POST", body: form }
     );
 
