@@ -36,7 +36,8 @@ If you cannot identify a plant, use "Unknown Plant" for names. Always provide a 
 
     try {
       const result = JSON.parse(text.replace(/```json|```/g, "").trim());
-      res.status(200).json(result);
+      console.log("Gemini result:", JSON.stringify(result));
+res.status(200).json(result);
     } catch {
       res.status(200).json({
         common_name: "Unknown",
