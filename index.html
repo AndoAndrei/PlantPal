@@ -175,9 +175,20 @@ function IdentifyTab({ onAddPlant }) {
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreview(e.target.result);
-      setImage({ base64: e.target.result.split(",")[1], type: file.type });
-      setResult(null); setError(null); setAdded(false);
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        const resized = canvas.toDataURL("image/jpeg", 0.85);
+        setPreview(resized);
+        setImage({ base64: resized.split(",")[1], type: "image/jpeg" });
+        setResult(null); setError(null); setAdded(false);
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   };
