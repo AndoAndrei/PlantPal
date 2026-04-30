@@ -16,14 +16,10 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [{
             parts: [
-              {
-                inline_data: { mime_type: mimeType, data: image }
-              },
-              {
-                text: `You are a plant identification expert. Identify the plant in this image and respond ONLY with a JSON object, no markdown, no explanation:
+              { inline_data: { mime_type: mimeType, data: image } },
+              { text: `You are a plant identification expert. Identify the plant in this image and respond ONLY with a JSON object, no markdown, no explanation, no backticks:
 {"common_name":"...","scientific_name":"...","confidence":"High|Medium|Low","brief_description":"one sentence about the plant","care_tip":"one practical care tip","watering_frequency_days":7}
-If you cannot identify a plant, use "Unknown Plant" for names. Always provide a watering_frequency_days number between 1 and 30.`
-              }
+If you cannot identify a plant, use "Unknown Plant" for names. Always provide a watering_frequency_days number between 1 and 30.` }
             ]
           }],
           generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
@@ -31,24 +27,30 @@ If you cannot identify a plant, use "Unknown Plant" for names. Always provide a 
       }
     );
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const raw = await response.json();
+
+    // Return raw so we can debug if needed
+    if (!raw.candidates || !raw.candidates[0]) {
+      return res.status(200).json({ error: "No candidates", detail: JSON.stringify(raw) });
+    }
+
+    const text = raw.candidates[0]?.content?.parts[0]?.text || "";
+
+    if (!text) {
+      return res.status(200).json({ error: "Empty text from Gemini", detail: JSON.stringify(raw) });
+    }
+
+    // Strip any markdown backticks just in case
+    const cleaned = text.replace(/```json|```/g, "").trim();
 
     try {
-      const result = JSON.parse(text.replace(/```json|```/g, "").trim());
-      console.log("Gemini result:", JSON.stringify(result));
-res.status(200).json(result);
+      const result = JSON.parse(cleaned);
+      return res.status(200).json(result);
     } catch {
-      res.status(200).json({
-        common_name: "Unknown",
-        scientific_name: "—",
-        confidence: "Low",
-        brief_description: text,
-        care_tip: "",
-        watering_frequency_days: 7
-      });
+      return res.status(200).json({ error: "JSON parse failed", detail: cleaned });
     }
+
   } catch (err) {
-    res.status(500).json({ error: "Identification failed", detail: err.message });
+    return res.status(500).json({ error: "Request failed", detail: err.message });
   }
 }
