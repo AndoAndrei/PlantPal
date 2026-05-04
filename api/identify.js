@@ -38,13 +38,24 @@ export default async function handler(req, res) {
     const commonName = best.species?.commonNames?.[0] || best.species?.scientificNameWithoutAuthor || "Unknown Plant";
     const scientificName = best.species?.scientificNameWithoutAuthor || "—";
 
+    // Build health flags from PlantNet result data
+    const healthIssues = [];
+    if (score < 40) healthIssues.push({ issue: "Low confidence identification", advice: "Try a clearer photo showing leaves and stem for a more accurate result." });
+
+    // Check for alternative species — high gap between top 2 may suggest unusual specimen
+    const second = data.results?.[1];
+    if (second && score < 60 && Math.round((second.score || 0) * 100) > 25) {
+      healthIssues.push({ issue: "Ambiguous identification", advice: `Could also be ${second.species?.commonNames?.[0] || second.species?.scientificNameWithoutAuthor}. Try photographing a single healthy leaf up close.` });
+    }
+
     return res.status(200).json({
       common_name: commonName,
       scientific_name: scientificName,
       confidence,
       brief_description: `Identified with ${score}% confidence via PlantNet.`,
       care_tip: "Check a plant care guide for specific watering and light requirements.",
-      watering_frequency_days: 7
+      watering_frequency_days: 7,
+      health_issues: healthIssues
     });
 
   } catch (err) {
