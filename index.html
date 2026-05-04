@@ -59,6 +59,10 @@
     .result-desc { font-size: 13px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px; }
     .tip-box { display: flex; gap: 8px; background: var(--green-50); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--green-900); align-items: flex-start; margin-bottom: 10px; }
     .water-suggest { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--gray-700); padding: 10px 0 0; border-top: 1px solid var(--gray-100); }
+    .health-issues { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .health-issue { display: flex; gap: 8px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 10px 12px; font-size: 13px; align-items: flex-start; }
+    .health-issue-title { font-weight: 700; color: #9a3412; margin-bottom: 2px; }
+    .health-issue-advice { color: #7c2d12; line-height: 1.5; }
     .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
     .symptom-btn { padding: 13px 8px; border: 1.5px solid var(--gray-200); border-radius: 12px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all 0.15s; text-align: center; }
     .symptom-btn.active { border-color: var(--green-500); background: var(--green-50); color: var(--green-900); }
@@ -246,6 +250,19 @@ function IdentifyTab({ onAddPlant }) {
           {result.care_tip && <div className="tip-box"><span>💡</span><span>{result.care_tip}</span></div>}
           {result.watering_frequency_days && (
             <div className="water-suggest"><span>💧</span><span>Suggested watering: every <strong>{result.watering_frequency_days} days</strong></span></div>
+          )}
+          {result.health_issues && result.health_issues.length > 0 && (
+            <div className="health-issues">
+              {result.health_issues.map((h, i) => (
+                <div key={i} className="health-issue">
+                  <span>⚠️</span>
+                  <div>
+                    <div className="health-issue-title">{h.issue}</div>
+                    <div className="health-issue-advice">{h.advice}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
           <button className={`btn ${added ? "btn-ghost" : "btn-primary"}`} style={{marginTop:12}} onClick={handleAdd} disabled={added}>
             {added ? "✓ Added to Reminders" : "Add to Reminders"}
