@@ -95,6 +95,16 @@
     .action-remove { background: var(--red-100); color: var(--red-700); font-size: 12px; }
     .cal-hint { display: flex; gap: 10px; background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 12px 14px; font-size: 12px; color: var(--green-900); line-height: 1.5; align-items: flex-start; }
     .hidden { display: none; }
+    .db-list { display: flex; flex-direction: column; gap: 14px; }
+    .db-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid var(--gray-100); }
+    .db-card-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--green-50); }
+    .db-card-img-placeholder { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: var(--green-50); }
+    .db-card-body { padding: 12px 14px; }
+    .db-card-name { font-size: 16px; font-weight: 800; color: var(--green-900); margin-bottom: 2px; }
+    .db-card-sci { font-size: 12px; color: var(--gray-500); font-style: italic; margin-bottom: 6px; }
+    .db-card-meta { display: flex; align-items: center; justify-content: space-between; }
+    .db-card-date { font-size: 11px; color: var(--gray-400); }
+    .db-card-actions { display: flex; gap: 6px; }
   </style>
 </head>
 <body>
@@ -173,6 +183,7 @@ function IdentifyTab({ onAddPlant }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [added, setAdded] = useState(false);
+  const [saved, setSaved] = useState(false);
   const fileRef = useRef();
 
   const handleFile = (file) => {
@@ -213,7 +224,22 @@ function IdentifyTab({ onAddPlant }) {
     finally { setLoading(false); }
   };
 
-  const clear = () => { setPreview(null); setImage(null); setResult(null); setError(null); };
+  const clear = () => { setPreview(null); setImage(null); setResult(null); setError(null); setSaved(false); };
+
+  const handleSave = () => {
+    if (!result || saved) return;
+    const existing = JSON.parse(localStorage.getItem("plantpal_db") || "[]");
+    const entry = {
+      id: Date.now(),
+      common_name: result.common_name,
+      scientific_name: result.scientific_name,
+      confidence: result.confidence,
+      date_saved: today(),
+      photo: preview
+    };
+    localStorage.setItem("plantpal_db", JSON.stringify([entry, ...existing]));
+    setSaved(true);
+  };
 
   const handleAdd = () => {
     onAddPlant({ name: result.common_name, freq: result.watering_frequency_days || 7 });
@@ -264,9 +290,14 @@ function IdentifyTab({ onAddPlant }) {
               ))}
             </div>
           )}
-          <button className={`btn ${added ? "btn-ghost" : "btn-primary"}`} style={{marginTop:12}} onClick={handleAdd} disabled={added}>
-            {added ? "✓ Added to Reminders" : "Add to Reminders"}
-          </button>
+          <div style={{display:"flex",gap:8,marginTop:12}}>
+            <button className={`btn ${saved ? "btn-ghost" : "btn-primary"}`} style={{margin:0}} onClick={handleSave} disabled={saved}>
+              {saved ? "✓ Saved" : "💾 Save Plant"}
+            </button>
+            <button className={`btn ${added ? "btn-ghost" : "btn-primary"}`} style={{margin:0}} onClick={handleAdd} disabled={added}>
+              {added ? "✓ Reminders" : "💧 Reminders"}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -377,10 +408,60 @@ function RemindersTab({ pending, onPendingClear }) {
   );
 }
 
+function MyPlantsTab({ onAddToReminders }) {
+  const [plants, setPlants] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("plantpal_db") || "[]"); }
+    catch { return []; }
+  });
+
+  const remove = (id) => {
+    const updated = plants.filter(p => p.id !== id);
+    setPlants(updated);
+    localStorage.setItem("plantpal_db", JSON.stringify(updated));
+  };
+
+  return (
+    <div className="tab-content">
+      <h2 className="tab-title">My Plants</h2>
+      <p className="tab-sub">{plants.length} plant{plants.length !== 1 ? "s" : ""} saved to your collection.</p>
+      {plants.length === 0 && (
+        <div className="empty-state">
+          <div style={{fontSize:48}}>🌿</div>
+          <div className="empty-text">No plants saved yet. Identify a plant and tap Save Plant to add it here.</div>
+        </div>
+      )}
+      <div className="db-list">
+        {plants.map(p => (
+          <div key={p.id} className="db-card">
+            {p.photo
+              ? <img src={p.photo} className="db-card-img" alt={p.common_name} />
+              : <div className="db-card-img-placeholder">🌿</div>}
+            <div className="db-card-body">
+              <div className="db-card-name">{p.common_name}</div>
+              <div className="db-card-sci">{p.scientific_name}</div>
+              <div className="db-card-meta">
+                <div>
+                  <div className="db-card-date">Saved {p.date_saved}</div>
+                  <div className={`badge badge-${(p.confidence||"low").toLowerCase()}`} style={{marginTop:4,display:"inline-block"}}>{p.confidence}</div>
+                </div>
+                <div className="db-card-actions">
+                  <button className="action-btn action-cal" onClick={() => onAddToReminders({ name: p.common_name, freq: 7 })} title="Add to Reminders">💧</button>
+                  <button className="action-btn action-remove" onClick={() => remove(p.id)} title="Delete">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [tab, setTab] = useState("identify");
   const [pending, setPending] = useState(null);
   const handleAddPlant = (plant) => { setPending(plant); setTab("reminders"); };
+  const handleAddFromDB = (plant) => { setPending(plant); setTab("reminders"); };
   return (
     <div className="app">
       <header className="header">
@@ -388,7 +469,7 @@ function App() {
         <div><div className="header-title">PlantPal</div><div className="header-sub">Your personal plant assistant</div></div>
       </header>
       <nav className="nav">
-        {[["identify","🔍","Identify"],["health","🩺","Health"],["reminders","💧","Reminders"]].map(([id,icon,label]) => (
+        {[["identify","🔍","Identify"],["health","🩺","Health"],["reminders","💧","Reminders"],["myplants","🌿","My Plants"]].map(([id,icon,label]) => (
           <button key={id} className={`nav-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>
             <span className="nav-icon">{icon}</span><span className="nav-label">{label}</span>
           </button>
@@ -397,6 +478,7 @@ function App() {
       {tab === "identify" && <IdentifyTab onAddPlant={handleAddPlant} />}
       {tab === "health" && <HealthTab />}
       {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} />}
+      {tab === "myplants" && <MyPlantsTab onAddToReminders={handleAddFromDB} />}
     </div>
   );
 }
