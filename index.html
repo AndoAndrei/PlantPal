@@ -857,7 +857,7 @@ async function loadCare(plant) {
   let psErr = null, pnErr = null;
   try { const r = await loadPSCare(plant); if (r) return { source: "plantsolve", ...r }; } catch (e) { psErr = e; }
   const b = findBuiltIn(plant); if (b) return { source: "builtin", data: b };
-  try { const r = await loadPerenual(plant); const usable = r && (r.watering || r.description || (r.sunlight || []).length || r.cycle || r.care_level || r.growth_rate || r.maintenance || (r.pruning_month || []).length); if (usable) return { source: "perenual", data: r }; } catch (e) { pnErr = e; }
+  try { const r = await loadPerenual(plant); const usable = r && (r.guide_watering || r.guide_sunlight || r.guide_pruning || r.watering || r.description || (r.sunlight || []).length || r.cycle || r.care_level || r.growth_rate || r.maintenance || (r.pruning_month || []).length); if (usable) return { source: "perenual", data: r }; } catch (e) { pnErr = e; }
   if (pnErr) throw pnErr;
   if (psErr) throw psErr;
   return null;
@@ -910,13 +910,13 @@ function CareGuide({ plant, onAddToReminders }) {
     const d = r.data;
     const nums = (d.watering_days || "").match(/\d+/g);
     if (nums) reminderDays = Math.max(1, Math.round(nums.map(Number).reduce((a, b) => a + b, 0) / nums.length));
-    const water = d.watering ? psCap(d.watering) + (d.watering_days ? ". Roughly every " + d.watering_days + " days." : "") : "";
+    const water = d.guide_watering ? d.guide_watering : d.watering ? psCap(d.watering) + (d.watering_days ? ". Roughly every " + d.watering_days + " days." : "") : "";
     const where = d.indoor === true ? "Can be grown indoors." : d.indoor === false ? "Best grown outdoors." : "";
     sections = [
       ["💧 Watering", water],
-      ["☀️ Light", (d.sunlight || []).map(psCap).join(", ")],
+      ["☀️ Light", d.guide_sunlight || (d.sunlight || []).map(psCap).join(", ")],
       ["🔁 Life cycle", [psCap(d.cycle), where].filter(Boolean).join(". ")],
-      ["✂️ Pruning", (d.pruning_month || []).length ? "Best pruned in " + d.pruning_month.join(", ") + "." : ""],
+      ["✂️ Pruning", d.guide_pruning || ((d.pruning_month || []).length ? "Best pruned in " + d.pruning_month.join(", ") + "." : "")],
       ["🌿 Growth", psCap(d.growth_rate)],
       ["🧰 Maintenance", psCap(d.maintenance)],
       ["📝 About", d.description || ""],
