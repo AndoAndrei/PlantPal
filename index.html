@@ -532,20 +532,33 @@ function psBinomial(t) {
     .replace(/\u00d7/g, " ")
     .replace(/[^a-z\s-]/g, " ")
     .split(/\s+/).filter(w => w && w !== "spp" && w !== "sp" && w !== "x")
-    .slice(0, 2).join(" ");
+    .slice(0, 2)
+    .map((w, i) => i === 0 ? ({ sansevieria: "dracaena", calathea: "goeppertia" }[w] || w) : w)
+    .join(" ");
+}
+
+// All binomials named in an index entry, including synonyms such as "(formerly Calathea orbifolia)"
+function psNames(t) {
+  const SPLIT = /[()\/;,]|\b(?:or|syn\.?|formerly|also sold as|often sold as|commonly sold as|often confused with|recently reclassified as|reclassified as|common hybrids like)\b/i;
+  return (t || "").split(SPLIT).map(psBinomial).filter(Boolean);
 }
 
 function findPSMatch(index, plant) {
   const b = psBinomial(plant.scientific_name);
+  const genus = b.split(" ")[0];
   const commonSlug = psSlugify(plant.common_name);
   if (b.split(" ").length === 2) {
-    const cands = index.filter(e => psBinomial(e.scientificName) === b);
+    const cands = index.filter(e => psNames(e.scientificName).includes(b));
     const plain = cands.filter(e => !psHasCultivar(e.scientificName));
     const pool = plain.length ? plain : cands;
     const best = pool.find(e => e.slug === psSlugify(b)) || pool.find(e => e.slug === commonSlug) || pool[0];
     if (best) return best;
   }
-  return index.find(e => e.slug === commonSlug) || null;
+  const bySlug = commonSlug && index.find(e => e.slug === commonSlug);
+  if (bySlug) return bySlug;
+  // Genus-wide profile such as "Philodendron spp."
+  if (genus) return index.find(e => /\bspp\b/i.test(e.scientificName || "") && psNames(e.scientificName).includes(genus)) || null;
+  return null;
 }
 
 async function loadPSCare(plant) {
@@ -582,7 +595,7 @@ function CareGuide({ plant, onAddToReminders }) {
 
   if (state.loading) return <div className="loading-card" style={{boxShadow:"none",padding:"10px 0"}}><div className="spinner" /><span>Loading care guide…</span></div>;
   if (state.error) return <div className="error-card">Could not load the care guide: {state.error}</div>;
-  if (!state.result) return <div className="tip-box"><span>🌱</span><span>No PlantSolve care guide for this plant yet. Try the Symptom Guide in the Health tab for general advice.</span></div>;
+  if (!state.result) return <div className="tip-box"><span>🌱</span><span>No PlantSolve care guide for {plant.scientific_name || plant.common_name} yet. The free dataset only covers a limited set of popular plants. Try the Symptom Guide in the Health tab for general advice.</span></div>;
 
   const { slug, data } = state.result;
   const care = data.care || {};
