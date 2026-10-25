@@ -147,6 +147,31 @@
     .zoom-controls input[type=range] { flex: 1; min-width: 0; accent-color: var(--leaf); }
     .zoom-btn { border: 1px solid var(--line); background: var(--card); border-radius: 12px; min-width: 44px; height: 44px; font-size: 20px; line-height: 1; cursor: pointer; padding: 0 10px; color: inherit; }
     .zoom-btn.zoom-reset { font-size: 13px; }
+    .insight { background: var(--sun); border-radius: 18px; padding: 14px; margin-bottom: 10px; }
+    .insight b { display: block; color: var(--sun-ink); font-size: 15px; margin-bottom: 4px; }
+    .insight p { font-size: 13px; color: var(--sun-ink); line-height: 1.45; margin-bottom: 10px; }
+    .insight-actions { display: flex; gap: 8px; } .insight-actions .btn { margin: 0; min-height: 44px; font-size: 14px; }
+    .j-form { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .j-row { display: flex; gap: 8px; align-items: center; } .j-row .btn { margin: 0; min-height: 44px; width: auto; padding: 0 16px; font-size: 14px; }
+    textarea.input { resize: vertical; font-family: inherit; }
+    .j-entry { border-left: 3px solid var(--green-200); padding: 0 0 14px 14px; margin-left: 6px; position: relative; }
+    .j-entry::before { content: ""; position: absolute; left: -7px; top: 4px; width: 11px; height: 11px; border-radius: 50%; background: var(--leaf); }
+    .j-date { font-size: 12px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+    .j-photo { width: 100%; max-height: 220px; object-fit: cover; border-radius: 14px; margin: 6px 0; }
+    .j-text { font-size: 14px; line-height: 1.5; color: var(--gray-700); }
+    .j-del { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; min-height: 36px; min-width: 36px; }
+    ::view-transition-group(plant-hero) { animation-duration: .4s; animation-timing-function: cubic-bezier(.2,.8,.2,1); overflow: hidden; }
+    ::view-transition-old(plant-hero), ::view-transition-new(plant-hero) { height: 100%; object-fit: cover; }
+    ::view-transition-group(root) { animation-duration: .3s; }
+    .vt .sheet:not(.pop) { animation: none; }
+    .pop-scrim { z-index: 50; } .pop { z-index: 51; max-height: 85vh; }
+    .pop-head { position: sticky; top: 0; background: var(--bg); display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 8px; z-index: 2; }
+    .pop-head h3 { font-family: var(--serif); font-size: 20px; color: var(--forest); }
+    .pop-x { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--gray-100); cursor: pointer; font-size: 14px; }
+    .pop-body { padding: 4px 18px 8px; }
+    .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 4px; }
+    .tile { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 84px; }
+    .tile span { font-size: 22px; } .tile b { font-size: 14px; color: var(--ink); } .tile small { font-size: 12px; color: var(--muted); }
     button:focus-visible, .input:focus-visible { outline: 3px solid rgba(63,143,95,.45); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
@@ -601,6 +626,7 @@ function HealthTab() {
             </div>
           ))}
           <div className="tip-box" style={{marginTop:10}}><span>💡</span><span>Only a limited list of plants and pathologies is supported. Treat results as a guide and check the symptom guide below or ask a local garden centre.</span></div>
+          {diag.length > 0 && <LogToJournal photo={preview} text={`Health check: ${diag[0].description} (${diag[0].score}%)`} />}
           {diag.some(d => d.citation) && <div className="sci-name" style={{marginTop:8,fontSize:11}}>Reference photos: Ephytia / INRAE via Pl@ntNet, CC BY-SA</div>}
         </div>
       )}
@@ -614,13 +640,15 @@ function HealthTab() {
         ))}
       </div>
       {advice && (
-        <div className="advice-card">
+        <Popup title={advice.label.replace(/^\S+\s/, "")} onClose={() => setSymptom("")}>
+        <div className="advice-card" style={{ border: "none", padding: 0, margin: 0, background: "none" }}>
           <div className="advice-label">Likely Cause</div>
           <div className="advice-text">{advice.cause}</div>
           <div className="advice-divider" />
           <div className="advice-label">Recommended Action</div>
           <div className="advice-text">{advice.action}</div>
         </div>
+        </Popup>
       )}
     </div>
   );
@@ -631,19 +659,20 @@ function RemindersTab({ pending, onPendingClear, go }) {
   const [name, setName] = useState("");
   const [freq, setFreq] = useState(7);
   const [exported, setExported] = useState({});
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
-    if (pending) { setName(pending.name); setFreq(pending.freq); onPendingClear(); }
+    if (pending) { setName(pending.name); setFreq(pending.freq); setShowAdd(true); onPendingClear(); }
   }, [pending]);
 
   const add = () => {
     if (!name.trim()) return;
     setPlants([...plants, { id: Date.now(), name: name.trim(), freq: Number(freq), lastWatered: today() }]);
     setName(""); setFreq(7);
-    window.toast(`🌱 Added ${name.trim()}`);
+    window.toast(`🌱 Added ${name.trim()}`); setShowAdd(false);
   };
 
-  const waterNow = id => { const p = plants.find(x => x.id === id); setPlants(plants.map(x => x.id === id ? { ...x, lastWatered: today() } : x)); window.toast(`💧 Watered ${p.name}`); };
+  const waterNow = id => { const p = plants.find(x => x.id === id); setPlants(plants.map(x => x.id === id ? waterPlant(x) : x)); window.toast(`💧 Watered ${p.name}`); };
   const remove = id => { const p = plants.find(x => x.id === id); setPlants(plants.filter(x => x.id !== id)); window.toast(`Removed ${p.name}`, { label: "Undo", fn: () => setPlants(cur => [...cur, p]) }); };
 
   const handleExport = (plant) => {
@@ -664,7 +693,9 @@ function RemindersTab({ pending, onPendingClear, go }) {
     <div className="tab-content">
       <h2 className="tab-title">Watering</h2>
       <p className="tab-sub">Add plants and export recurring reminders to your calendar.</p>
-      <div className="add-card">
+      <button className="btn btn-primary" style={{ marginBottom: 18 }} onClick={() => setShowAdd(true)}>+ Add a plant</button>
+      {showAdd && <Popup title="Add a plant" onClose={() => setShowAdd(false)}>
+      <div className="add-card" style={{ border: "none", padding: 0, marginBottom: 0 }}>
         <input className="input" placeholder="Plant name (e.g. Peace Lily)"
           value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === "Enter" && add()} />
         <div className="freq-row">
@@ -673,7 +704,7 @@ function RemindersTab({ pending, onPendingClear, go }) {
           <span className="freq-label">days</span>
         </div>
         <button className="btn btn-primary" onClick={add}>Add Plant</button>
-      </div>
+      </div></Popup>}
       {plants.length === 0 && <div className="empty-state"><div style={{fontSize:44}}>💧</div><h4>No reminders yet</h4><div className="empty-text">Add a plant above, or scan one to get a suggested schedule.</div><button className="btn btn-ghost" onClick={() => go("identify")}>Scan a plant</button></div>}
       <div className="plant-list">
         {plants.map(plant => {
@@ -989,17 +1020,136 @@ function ErrorCard({ message, onRetry }) {
   );
 }
 
+// ---- Phase 04: journal, care insights ----
+function readJournal() { try { return JSON.parse(localStorage.getItem("plantpal_journal") || "{}"); } catch { return {}; } }
+function writeJournal(all) { try { localStorage.setItem("plantpal_journal", JSON.stringify(all)); return true; } catch { return false; } }
+function addJournalEntry(plantId, e) {
+  const all = readJournal();
+  all[plantId] = [e, ...(all[plantId] || [])].sort((a, b) => b.id - a.id);
+  return writeJournal(all);
+}
+function shrinkPhoto(src) {
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, 640 / Math.max(im.width, im.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", 0.7));
+    };
+    im.onerror = () => res(null);
+    im.src = src;
+  });
+}
+const niceDate = (d) => new Date(d + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+function waterPlant(p) {
+  const t = today(), h = p.history || [p.lastWatered];
+  return { ...p, lastWatered: t, history: h[h.length - 1] === t ? h : [...h, t].slice(-12) };
+}
+function careInsight(p) {
+  const h = (p.history || []).slice(-8);
+  if (h.length < 4) return null;
+  const gaps = h.slice(1).map((d, i) => daysBetween(h[i], d)).filter(g => g > 0);
+  if (gaps.length < 3) return null;
+  const avg = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
+  if (Math.abs(avg - p.freq) < 2 || p.dismissed === avg) return null;
+  return { avg };
+}
+
+function Journal({ plantId, since }) {
+  const [entries, setEntries] = useState(() => readJournal()[plantId] || []);
+  const [note, setNote] = useState("");
+  const [photo, setPhoto] = useState(null);
+  const fileRef = useRef();
+  const pick = async (f) => { const src = await loadSourceImage(f); if (src) setPhoto(await shrinkPhoto(src)); };
+  const add = () => {
+    if (!note.trim() && !photo) return;
+    const e = { id: Date.now(), date: today(), note: note.trim(), photo };
+    if (!addJournalEntry(plantId, e)) { window.toast("Not enough storage for that photo. Try a note only."); return; }
+    setEntries(readJournal()[plantId] || []); setNote(""); setPhoto(null);
+    window.toast("📓 Added to journal");
+  };
+  const del = (e) => {
+    const all = readJournal(); all[plantId] = (all[plantId] || []).filter(x => x.id !== e.id); writeJournal(all);
+    setEntries(all[plantId]);
+    window.toast("Entry removed", { label: "Undo", fn: () => { addJournalEntry(plantId, e); setEntries(readJournal()[plantId] || []); } });
+  };
+  return (
+    <div>
+      <div className="eyebrow" style={{ margin: "18px 0 10px" }}>Growth journal{since ? " · since " + niceDate(since) : ""}</div>
+      <div className="j-form">
+        <textarea className="input" rows="2" placeholder="New leaf, repotted, moved to a sunnier spot..." value={note} onChange={e => setNote(e.target.value)} />
+        {photo && <img className="j-photo" src={photo} alt="Journal preview" style={{ margin: 0 }} />}
+        <div className="j-row">
+          <button className="btn btn-ghost" onClick={() => fileRef.current.click()}>📷 {photo ? "Change" : "Photo"}</button>
+          <button className="btn btn-primary" style={{ flex: 1 }} onClick={add}>Add entry</button>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { pick(e.target.files[0]); e.target.value = ""; }} />
+      </div>
+      {entries.length === 0 ? (
+        <div className="empty-text" style={{ margin: "4px 0 8px" }}>No entries yet. Add a photo today and you will be able to see how it grows.</div>
+      ) : entries.map(e => (
+        <div key={e.id} className="j-entry">
+          <div className="j-date"><span>{niceDate(e.date)}{e.kind === "health" ? " · 🩺 Health check" : ""}</span><button className="j-del" onClick={() => del(e)} aria-label="Delete entry">✕</button></div>
+          {e.photo && <img className="j-photo" src={e.photo} alt="Journal" />}
+          {e.note && <div className="j-text">{e.note}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LogToJournal({ photo, text }) {
+  const saved = readSaved();
+  const [id, setId] = useState(saved[0] ? String(saved[0].id) : "");
+  const [done, setDone] = useState(false);
+  if (!saved.length) return <div className="tip-box" style={{ marginTop: 10 }}><span>📓</span><span>Save a plant from the Scan tab to log health checks to its journal.</span></div>;
+  const log = async () => {
+    const small = photo ? await shrinkPhoto(photo) : null;
+    if (!addJournalEntry(Number(id), { id: Date.now(), date: today(), note: text, photo: small, kind: "health" })) { window.toast("Not enough storage to save this check."); return; }
+    setDone(true); window.toast("📓 Logged to journal");
+  };
+  return (
+    <div className="j-form" style={{ marginTop: 12, marginBottom: 0 }}>
+      <div className="advice-label" style={{ marginBottom: 0 }}>Log to a plant journal</div>
+      <select className="input" value={id} onChange={e => setId(e.target.value)}>{saved.map(p => <option key={p.id} value={p.id}>{p.common_name}</option>)}</select>
+      <button className={`btn ${done ? "btn-ghost" : "btn-primary"}`} style={{ margin: 0 }} onClick={log} disabled={done}>{done ? "✓ Logged" : "📓 Log this check"}</button>
+    </div>
+  );
+}
+
+function Popup({ title, onClose, children }) {
+  useEffect(() => {
+    const k = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    const prev = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
+  }, []);
+  return (
+    <>
+      <div className="scrim pop-scrim" onClick={onClose} />
+      <div className="sheet pop" role="dialog" aria-label={title}>
+        <div className="pop-head"><h3>{title}</h3><button className="pop-x" onClick={onClose} aria-label="Close">✕</button></div>
+        <div className="pop-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
 function Home({ go }) {
   const [plants, setPlants] = useLocalStorage("plantpal_v2", []);
   const saved = readSaved();
   const photoFor = (name) => (saved.find(s => s.common_name === name) || {}).photo;
   const due = plants.map(p => ({ p, s: waterStatus(p) })).filter(x => x.s.urgent).sort((a, b) => a.s.diff - b.s.diff);
+  const insights = plants.map(p => ({ p, i: careInsight(p) })).filter(x => x.i);
   const hour = new Date().getHours();
   const hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const dateStr = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   const water = (id, name) => {
-    setPlants(plants.map(p => p.id === id ? { ...p, lastWatered: today() } : p));
+    setPlants(plants.map(p => p.id === id ? waterPlant(p) : p));
     window.toast(`💧 Watered ${name}`);
   };
 
@@ -1049,6 +1199,22 @@ function Home({ go }) {
         </div>
       )}
 
+      {insights.length > 0 && (
+        <>
+          <div className="section-h"><h3>Care insights</h3></div>
+          {insights.map(({ p, i }) => (
+            <div key={p.id} className="insight">
+              <b>🧠 You water {p.name} every {i.avg} days</b>
+              <p>Your reminder is set to every {p.freq}. {i.avg > p.freq ? "You tend to water later than planned, so a longer interval may fit your routine." : "You tend to water sooner than planned, so a shorter interval may fit better."}</p>
+              <div className="insight-actions">
+                <button className="btn btn-primary" onClick={() => { setPlants(plants.map(x => x.id === p.id ? { ...x, freq: i.avg } : x)); window.toast(`Reminder for ${p.name} set to every ${i.avg} days`); }}>Use {i.avg} days</button>
+                <button className="btn btn-ghost" onClick={() => setPlants(plants.map(x => x.id === p.id ? { ...x, dismissed: i.avg } : x))}>Not now</button>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+
       <div className="section-h"><h3>Care tools</h3></div>
       <div className="quick">
         <button className="quick-btn" onClick={() => go("health")}><span style={{ fontSize: 22 }}>🩺</span><b>Diagnose a problem</b><span>Spot pests and disease</span></button>
@@ -1062,7 +1228,23 @@ function MyPlantsTab({ onAddToReminders, go }) {
   const [plants, setPlants] = useState(readSaved);
   const [reminders] = useLocalStorage("plantpal_v2", []);
   const [openId, setOpenId] = useState(null);
+  const [pop, setPop] = useState(null);
   const open = plants.find(p => p.id === openId);
+  const jCount = open ? (readJournal()[open.id] || []).length : 0;
+  const heroOf = (id) => { const c = document.querySelector(`[data-plant="${id}"]`); return c && c.firstElementChild; };
+  const openPlant = (p, ev) => {
+    const media = ev.currentTarget.firstElementChild;
+    if (!document.startViewTransition || !media) { setOpenId(p.id); return; }
+    media.style.viewTransitionName = "plant-hero";
+    document.startViewTransition(() => { ReactDOM.flushSync(() => setOpenId(p.id)); media.style.viewTransitionName = ""; });
+  };
+  const closePlant = () => {
+    setPop(null);
+    if (!document.startViewTransition) { setOpenId(null); return; }
+    const id = openId;
+    document.startViewTransition(() => { ReactDOM.flushSync(() => setOpenId(null)); const m = heroOf(id); if (m) m.style.viewTransitionName = "plant-hero"; })
+      .finished.finally(() => { const m = heroOf(id); if (m) m.style.viewTransitionName = ""; });
+  };
   const statusOf = (p) => { const r = reminders.find(x => x.name === p.common_name); return r ? waterStatus(r) : null; };
 
   const remove = (p) => {
@@ -1091,7 +1273,7 @@ function MyPlantsTab({ onAddToReminders, go }) {
         {plants.map(p => {
           const s = statusOf(p);
           return (
-            <button key={p.id} className="db-card" onClick={() => setOpenId(p.id)}>
+            <button key={p.id} data-plant={p.id} className="db-card" onClick={(e) => openPlant(p, e)}>
               {p.photo ? <img src={p.photo} className="db-card-img" alt={p.common_name} /> : <div className="db-card-img-placeholder">🌿</div>}
               <div className="db-card-body">
                 <div className="db-card-name">{p.common_name}</div>
@@ -1102,12 +1284,14 @@ function MyPlantsTab({ onAddToReminders, go }) {
           );
         })}
       </div>
+      {open && pop === "journal" && <Popup title={open.common_name + " journal"} onClose={() => setPop(null)}><Journal key={open.id} plantId={open.id} since={open.date_saved} /></Popup>}
+      {open && pop === "care" && <Popup title="Care guide" onClose={() => setPop(null)}><CareGuide plant={open} onAddToReminders={onAddToReminders} /></Popup>}
       {open && (
         <>
-          <div className="scrim" onClick={() => setOpenId(null)} />
+          <div className="scrim" onClick={closePlant} />
           <div className="sheet" role="dialog" aria-label={open.common_name}>
-            <button className="sheet-close" onClick={() => setOpenId(null)} aria-label="Close">✕</button>
-            {open.photo ? <img className="sheet-img" src={open.photo} alt={open.common_name} /> : <div className="sheet-img">🌿</div>}
+            <button className="sheet-close" onClick={closePlant} aria-label="Close">✕</button>
+            {open.photo ? <img className="sheet-img" style={{ viewTransitionName: "plant-hero" }} src={open.photo} alt={open.common_name} /> : <div className="sheet-img" style={{ viewTransitionName: "plant-hero" }}>🌿</div>}
             <div className="sheet-body">
               <div className="result-header" style={{ marginBottom: 0 }}>
                 <div><div className="common-name">{open.common_name}</div><div className="sci-name">{open.scientific_name}</div></div>
@@ -1117,8 +1301,10 @@ function MyPlantsTab({ onAddToReminders, go }) {
                 <button className="btn btn-primary" style={{ margin: 0 }} onClick={() => onAddToReminders({ name: open.common_name, freq: 7 })}>💧 Add reminder</button>
                 <button className="btn btn-ghost" style={{ margin: 0, width: 110 }} onClick={() => remove(open)}>Remove</button>
               </div>
-              <div className="eyebrow" style={{ margin: "18px 0 10px" }}>Care guide</div>
-              <CareGuide plant={open} onAddToReminders={onAddToReminders} />
+              <div className="tiles">
+                <button className="tile" onClick={() => setPop("journal")}><span>📓</span><b>Growth journal</b><small>{jCount} entr{jCount === 1 ? "y" : "ies"}</small></button>
+                <button className="tile" onClick={() => setPop("care")}><span>📖</span><b>Care guide</b><small>Water, light, soil</small></button>
+              </div>
             </div>
           </div>
         </>
@@ -1140,6 +1326,7 @@ function App() {
     window.addEventListener("pp-toast", h);
     return () => window.removeEventListener("pp-toast", h);
   }, []);
+  useEffect(() => { if (document.startViewTransition) document.documentElement.classList.add("vt"); }, []);
   const goReminder = (plant) => { setPending(plant); setTab("reminders"); };
   const TABS = [["home", "🏡", "Home"], ["myplants", "🌿", "Plants"], ["identify", "📷", "Scan"], ["health", "🩺", "Health"], ["reminders", "💧", "Water"]];
   return (
