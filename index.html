@@ -3,114 +3,152 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#16a34a" />
+  <meta name="theme-color" content="#1f4d36" />
+  <meta name="author" content="Andrei Ando" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="PlantPal" />
   <title>PlantPal 🌿</title>
   <link rel="manifest" href="/manifest.json" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green-50: #f0fdf4; --green-100: #dcfce7; --green-200: #bbf7d0;
-      --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-900: #14532d;
-      --amber-100: #fef3c7; --amber-800: #92400e;
-      --red-100: #fee2e2; --red-700: #b91c1c;
-      --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
-      --gray-400: #9ca3af; --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+      --bg: #f6f3ec; --card: #fffdf9; --ink: #1b2a21; --muted: #6d7a71; --line: #e8e3d6;
+      --forest: #1f4d36; --leaf: #3f8f5f; --mint: #e3efe5; --sun: #f6e7bd; --sun-ink: #7a5412; --clay: #f6dcd2; --clay-ink: #9a3a1c;
+      --green-50: #f1f6f1; --green-100: #e3efe5; --green-200: #c9dfcd; --green-500: #3f8f5f; --green-600: #2f7a4d; --green-700: #1f4d36; --green-900: #1b2a21;
+      --amber-100: #f6e7bd; --amber-800: #7a5412; --red-100: #f6dcd2; --red-700: #9a3a1c;
+      --gray-50: #faf8f3; --gray-100: #eeeadf; --gray-200: #e0dbcc; --gray-400: #98a29b; --gray-500: #6d7a71; --gray-700: #3c4a41; --gray-900: #1b2a21;
+      --serif: 'Fraunces', Georgia, serif; --r: 20px;
     }
-    html, body { height: 100%; background: var(--green-50); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
     #root { min-height: 100vh; }
-    .app { min-height: 100vh; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; background: linear-gradient(170deg, #f0fdf4 0%, #f7fef4 50%, #f0f9ff 100%); }
-    .header { display: flex; align-items: center; gap: 12px; padding: 20px 18px 14px; background: rgba(255,255,255,0.8); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(34,197,94,0.12); position: sticky; top: 0; z-index: 20; }
-    .header-title { font-size: 24px; font-weight: 800; color: var(--green-900); letter-spacing: -0.5px; }
-    .header-sub { font-size: 11px; color: var(--gray-500); margin-top: 2px; font-weight: 500; }
-    .nav { display: flex; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(34,197,94,0.1); position: sticky; top: 67px; z-index: 19; }
-    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px; border: none; background: transparent; cursor: pointer; border-bottom: 2.5px solid transparent; transition: all 0.15s; color: var(--gray-500); font-family: inherit; }
-    .nav-btn.active { border-bottom-color: var(--green-600); background: rgba(34,197,94,0.05); color: var(--green-700); }
-    .nav-icon { font-size: 19px; }
-    .nav-label { font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
-    .tab-content { flex: 1; padding: 22px 16px 100px; }
-    .tab-title { font-size: 22px; font-weight: 800; color: var(--green-900); margin-bottom: 4px; letter-spacing: -0.3px; }
-    .tab-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; }
-    .dropzone { border: 2px dashed var(--green-200); border-radius: 18px; min-height: 180px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.5); transition: all 0.2s; margin-bottom: 12px; overflow: hidden; }
-    .dropzone.has-image { border: 2px solid var(--green-500); min-height: 220px; }
-    .drop-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px; }
-    .drop-icon { font-size: 44px; }
-    .drop-text { font-size: 14px; color: var(--gray-400); font-weight: 500; }
-    .preview-img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
-    .btn { width: 100%; padding: 13px 0; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 8px; transition: all 0.15s; }
-    .btn-primary { background: linear-gradient(135deg, var(--green-500), var(--green-600)); color: #fff; box-shadow: 0 4px 20px rgba(34,197,94,0.25); }
-    .btn-primary:disabled { opacity: 0.6; cursor: default; }
-    .btn-ghost { background: transparent; color: var(--gray-500); border: 1.5px solid var(--gray-200); }
-    .loading-card { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 16px 20px; margin-top: 12px; font-size: 14px; color: var(--gray-700); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .spinner { width: 20px; height: 20px; border: 2.5px solid var(--green-100); border-top-color: var(--green-500); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .error-card { background: var(--red-100); border: 1px solid #fecaca; color: var(--red-700); border-radius: 12px; padding: 14px 16px; font-size: 13px; margin-top: 12px; }
-    .result-card { background: #fff; border-radius: 18px; padding: 18px 16px; margin-top: 16px; box-shadow: 0 4px 20px rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.15); }
-    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .common-name { font-size: 21px; font-weight: 800; color: var(--green-900); }
-    .sci-name { font-size: 12px; color: var(--gray-500); font-style: italic; margin-top: 2px; }
-    .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
-    .badge-high { background: var(--green-100); color: var(--green-700); }
-    .badge-medium { background: var(--amber-100); color: var(--amber-800); }
-    .badge-low { background: var(--red-100); color: var(--red-700); }
-    .result-desc { font-size: 13px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px; }
-    .tip-box { display: flex; gap: 8px; background: var(--green-50); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--green-900); align-items: flex-start; margin-bottom: 10px; }
-    .water-suggest { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--gray-700); padding: 10px 0 0; border-top: 1px solid var(--gray-100); }
-    .health-issues { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .health-issue { display: flex; gap: 8px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 10px 12px; font-size: 13px; align-items: flex-start; }
-    .health-issue-title { font-weight: 700; color: #9a3412; margin-bottom: 2px; }
-    .health-issue-advice { color: #7c2d12; line-height: 1.5; }
-    .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-    .symptom-btn { padding: 13px 8px; border: 1.5px solid var(--gray-200); border-radius: 12px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all 0.15s; text-align: center; }
-    .symptom-btn.active { border-color: var(--green-500); background: var(--green-50); color: var(--green-900); }
-    .advice-card { background: #fff; border-radius: 18px; padding: 18px 16px; box-shadow: 0 4px 20px rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.15); }
-    .advice-label { font-size: 10px; font-weight: 700; color: var(--green-600); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
-    .advice-text { font-size: 14px; color: var(--gray-700); line-height: 1.65; }
-    .advice-divider { height: 1px; background: var(--gray-100); margin: 14px 0; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 20px; }
-    .empty-text { font-size: 14px; color: var(--gray-400); text-align: center; line-height: 1.5; }
-    .add-card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); border: 1px solid var(--gray-100); display: flex; flex-direction: column; gap: 10px; }
-    .input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-family: inherit; font-size: 14px; color: var(--gray-900); background: var(--gray-50); outline: none; transition: border-color 0.15s; }
-    .input:focus { border-color: var(--green-500); background: #fff; }
-    .input-small { width: 72px; text-align: center; }
-    .freq-row { display: flex; align-items: center; gap: 8px; }
-    .freq-label { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
+    .app { min-height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg); position: relative; }
+    .view { animation: fadeUp .28s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .tab-content { padding: calc(env(safe-area-inset-top, 0px) + 26px) 18px 130px; }
+    .tab-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--forest); margin-bottom: 4px; letter-spacing: -0.5px; }
+    .tab-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+    .section-h { display: flex; justify-content: space-between; align-items: baseline; margin: 26px 0 10px; }
+    .section-h h3 { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--forest); }
+    .link-btn { border: none; background: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--leaf); cursor: pointer; padding: 6px 0; }
+    /* bottom nav */
+    .tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; align-items: flex-end; background: rgba(255,253,249,.94); backdrop-filter: blur(16px); border-top: 1px solid var(--line); padding: 8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px); z-index: 30; }
+    .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: none; background: none; font-family: inherit; color: var(--gray-400); cursor: pointer; padding: 6px 0; min-height: 48px; transition: color .15s; }
+    .tab-btn .ico { font-size: 21px; filter: grayscale(1) opacity(.6); transition: filter .15s, transform .15s; }
+    .tab-btn .lbl { font-size: 11px; font-weight: 700; }
+    .tab-btn.active { color: var(--forest); }
+    .tab-btn.active .ico { filter: none; transform: translateY(-1px); }
+    .tab-scan .fab { width: 58px; height: 58px; border-radius: 50%; margin-top: -26px; background: linear-gradient(145deg, var(--leaf), var(--forest)); display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 8px 22px rgba(31,77,54,.35); border: 4px solid var(--bg); transition: transform .15s; }
+    .tab-scan:active .fab { transform: scale(.94); }
+    .tab-scan .lbl { color: var(--forest); }
+    /* home */
+    .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--forest); }
+    .greeting { font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--forest); line-height: 1.1; letter-spacing: -.8px; margin: 4px 0 6px; }
+    .hero { background: linear-gradient(150deg, #2f7a4d 0%, #1f4d36 100%); color: #fff; border-radius: 26px; padding: 22px 20px; margin: 20px 0 4px; position: relative; overflow: hidden; }
+    .hero::after { content: "🌿"; position: absolute; right: -10px; bottom: -22px; font-size: 120px; opacity: .14; transform: rotate(-12deg); }
+    .hero h2 { font-family: var(--serif); font-size: 23px; font-weight: 600; margin-bottom: 6px; }
+    .hero p { font-size: 14px; opacity: .85; line-height: 1.45; margin-bottom: 16px; max-width: 260px; }
+    .hero-btn { background: #fff; color: var(--forest); border: none; border-radius: 14px; padding: 13px 20px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px; position: relative; z-index: 1; }
+    .hero-btn:active { transform: scale(.97); }
+    .stats { display: flex; gap: 10px; margin-top: 12px; }
+    .stat { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+    .stat b { display: block; font-family: var(--serif); font-size: 26px; color: var(--forest); font-weight: 600; }
+    .stat span { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quick-btn { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-height: 64px; }
+    .quick-btn b { font-size: 14px; color: var(--ink); } .quick-btn span { font-size: 12px; color: var(--muted); }
+    /* plant rows & cards */
+    .thumb { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; background: var(--mint); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
     .plant-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-    .plant-card { background: #fff; border-radius: 14px; padding: 13px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--gray-100); }
-    .plant-card.urgent { border-color: #fde68a; background: #fffdf5; }
+    .plant-card { background: var(--card); border-radius: 18px; padding: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); }
+    .plant-card.urgent { border-color: #ecd48f; background: #fffaf0; }
     .plant-info { flex: 1; min-width: 0; }
-    .plant-name { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .plant-meta { font-size: 11px; color: var(--gray-400); }
-    .status-badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 20px; white-space: nowrap; }
-    .status-ok { background: var(--green-100); color: var(--green-700); }
-    .status-today { background: var(--amber-100); color: var(--amber-800); }
-    .status-urgent { background: var(--red-100); color: var(--red-700); }
-    .plant-actions { display: flex; gap: 5px; }
-    .action-btn { width: 34px; height: 34px; border: none; border-radius: 9px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-weight: 700; font-family: inherit; }
-    .action-water { background: #e0f2fe; color: #0369a1; }
-    .action-cal { background: var(--green-100); color: var(--green-700); }
-    .action-remove { background: var(--red-100); color: var(--red-700); font-size: 12px; }
-    .cal-hint { display: flex; gap: 10px; background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 12px 14px; font-size: 12px; color: var(--green-900); line-height: 1.5; align-items: flex-start; }
+    .plant-name { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .plant-meta { font-size: 12px; color: var(--muted); }
+    .status-badge, .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; display: inline-block; }
+    .status-ok, .badge-high { background: var(--mint); color: var(--forest); }
+    .status-today, .badge-medium { background: var(--sun); color: var(--sun-ink); }
+    .status-urgent, .badge-low { background: var(--clay); color: var(--clay-ink); }
+    .plant-actions { display: flex; gap: 6px; }
+    .action-btn { width: 44px; height: 44px; border: none; border-radius: 13px; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: transform .12s; font-family: inherit; font-weight: 700; }
+    .action-btn:active { transform: scale(.92); }
+    .action-water { background: #dcecf7; color: #0b5a8a; } .action-cal { background: var(--mint); color: var(--forest); } .action-remove { background: var(--clay); color: var(--clay-ink); font-size: 13px; }
+    .db-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .db-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--line); cursor: pointer; text-align: left; padding: 0; font: inherit; transition: transform .15s; }
+    .db-card:active { transform: scale(.97); }
+    .db-card-img, .db-card-img-placeholder { width: 100%; aspect-ratio: 1; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 40px; background: var(--mint); }
+    .db-card-body { padding: 10px 12px 12px; }
+    .db-card-name { font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+    .db-card-sci { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* sheet */
+    .scrim { position: fixed; inset: 0; background: rgba(20,32,25,.45); z-index: 40; animation: fade .2s ease both; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; background: var(--bg); border-radius: 28px 28px 0 0; z-index: 41; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); animation: sheetUp .3s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes sheetUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+    .sheet-img { width: 100%; height: 220px; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 64px; background: var(--mint); border-radius: 28px 28px 0 0; }
+    .sheet-body { padding: 18px 18px 0; }
+    .sheet-close { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,253,249,.92); font-size: 16px; cursor: pointer; z-index: 2; }
+    .sheet-actions { display: flex; gap: 8px; margin: 14px 0; }
+    /* forms and buttons */
+    .dropzone { border: 2px dashed var(--green-200); border-radius: 22px; min-height: 220px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--card); margin-bottom: 12px; transition: border-color .2s, background .2s; }
+    .dropzone:active { background: var(--mint); border-color: var(--leaf); }
+    .drop-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px; text-align: center; }
+    .drop-icon { font-size: 46px; } .drop-text { font-size: 14px; color: var(--muted); font-weight: 500; }
     .hidden { display: none; }
-    .db-list { display: flex; flex-direction: column; gap: 14px; }
-    .db-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid var(--gray-100); }
-    .db-card-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--green-50); }
-    .db-card-img-placeholder { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: var(--green-50); }
-    .db-card-body { padding: 12px 14px; }
-    .db-card-name { font-size: 16px; font-weight: 800; color: var(--green-900); margin-bottom: 2px; }
-    .db-card-sci { font-size: 12px; color: var(--gray-500); font-style: italic; margin-bottom: 6px; }
-    .db-card-meta { display: flex; align-items: center; justify-content: space-between; }
-    .db-card-date { font-size: 11px; color: var(--gray-400); }
-    .db-card-actions { display: flex; gap: 6px; }
-    .zoom-box { position: relative; width: 100%; overflow: hidden; border-radius: 18px; border: 2px solid var(--green-500); background: #111; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
-    .zoom-box:active { cursor: grabbing; }
+    .btn { width: 100%; min-height: 50px; padding: 13px 0; border: none; border-radius: 15px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 8px; transition: transform .12s, opacity .15s; }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: linear-gradient(145deg, var(--leaf), var(--forest)); color: #fff; box-shadow: 0 6px 18px rgba(31,77,54,.22); }
+    .btn-primary:disabled { opacity: .6; cursor: default; box-shadow: none; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
+    .input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 13px; font-family: inherit; font-size: 15px; color: var(--ink); background: var(--gray-50); outline: none; transition: border-color .15s; }
+    .input:focus { border-color: var(--leaf); background: #fff; }
+    .input-small { width: 76px; text-align: center; }
+    .add-card { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+    .freq-row { display: flex; align-items: center; gap: 8px; } .freq-label { font-size: 14px; color: var(--muted); white-space: nowrap; }
+    .result-card, .advice-card { background: var(--card); border-radius: 22px; padding: 18px 16px; margin-top: 16px; border: 1px solid var(--line); animation: fadeUp .3s ease both; }
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px; }
+    .common-name { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--forest); }
+    .sci-name { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+    .result-desc { font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px; }
+    .tip-box { display: flex; gap: 8px; background: var(--mint); border-radius: 12px; padding: 11px 12px; font-size: 13px; color: var(--forest); align-items: flex-start; margin-bottom: 10px; line-height: 1.5; }
+    .water-suggest { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--gray-700); padding: 10px 0 0; border-top: 1px solid var(--line); }
+    .health-issues { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .health-issue { display: flex; gap: 8px; background: #fff4e5; border: 1px solid #f1d4a6; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+    .health-issue-title { font-weight: 700; color: #8a4b0e; margin-bottom: 2px; } .health-issue-advice { color: #6b4115; line-height: 1.5; }
+    .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .symptom-btn { min-height: 48px; padding: 12px 8px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all .15s; }
+    .symptom-btn.active { border-color: var(--leaf); background: var(--mint); color: var(--forest); }
+    .advice-label { font-size: 11px; font-weight: 700; color: var(--leaf); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+    .advice-text { font-size: 14px; color: var(--gray-700); line-height: 1.65; }
+    .advice-divider { height: 1px; background: var(--line); margin: 14px 0; }
+    .cal-hint { display: flex; gap: 10px; background: var(--mint); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--forest); line-height: 1.5; }
+    /* feedback: empty, error, skeleton, toast */
+    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 34px 24px; text-align: center; background: var(--card); border: 1.5px dashed var(--line); border-radius: 22px; }
+    .empty-state h4 { font-family: var(--serif); font-size: 19px; color: var(--forest); font-weight: 600; }
+    .empty-text { font-size: 14px; color: var(--muted); line-height: 1.5; max-width: 260px; }
+    .empty-state .btn { width: auto; padding: 0 24px; margin: 6px 0 0; }
+    .error-card { background: var(--clay); color: var(--clay-ink); border-radius: 16px; padding: 14px 16px; font-size: 14px; margin-top: 12px; line-height: 1.5; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .error-card button { background: #fff; color: var(--clay-ink); border: none; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; min-height: 40px; }
+    .skel { background: linear-gradient(90deg, #ece8dc 25%, #f6f3ec 50%, #ece8dc 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite linear; border-radius: 10px; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel-label { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+    .toasts { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); width: calc(100% - 32px); max-width: 440px; z-index: 60; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { background: var(--forest); color: #fff; border-radius: 14px; padding: 13px 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.22); animation: toastIn .25s ease both; pointer-events: auto; }
+    .toast button { background: none; border: none; color: #bfe6c9; font: inherit; font-weight: 700; cursor: pointer; min-height: 32px; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .spinner { width: 20px; height: 20px; border: 2.5px solid var(--green-100); border-top-color: var(--leaf); border-radius: 50%; animation: spin .75s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .preview-img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
+    .zoom-box { position: relative; width: 100%; overflow: hidden; border-radius: 22px; border: 2px solid var(--leaf); background: #111; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
     .zoom-controls { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-    .zoom-controls input[type=range] { flex: 1; min-width: 0; accent-color: var(--green-500); }
-    .zoom-btn { border: 1px solid var(--green-200); background: #fff; border-radius: 10px; min-width: 40px; height: 40px; font-size: 20px; line-height: 1; cursor: pointer; padding: 0 10px; color: inherit; }
+    .zoom-controls input[type=range] { flex: 1; min-width: 0; accent-color: var(--leaf); }
+    .zoom-btn { border: 1px solid var(--line); background: var(--card); border-radius: 12px; min-width: 44px; height: 44px; font-size: 20px; line-height: 1; cursor: pointer; padding: 0 10px; color: inherit; }
     .zoom-btn.zoom-reset { font-size: 13px; }
+    button:focus-visible, .input:focus-visible { outline: 3px solid rgba(63,143,95,.45); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
@@ -399,14 +437,14 @@ function IdentifyTab({ onAddPlant }) {
       setPreview(cropped);
       const data = await identifyPlant(cropped.split(",")[1], "image/jpeg");
       if (data.error) {
-        setError("API error: " + data.error + (data.detail ? " - " + data.detail : ""));
+        setError("We could not identify this plant. Try a clearer, closer photo of the leaves.");
       } else if (!data.common_name) {
-        setError("Unexpected response: " + JSON.stringify(data));
+        setError("Something went wrong on our side. Please try again.");
       } else {
         setResult(data);
       }
     }
-    catch (e) { setError("Could not identify - " + e.message); }
+    catch (e) { setError(e.message.startsWith("Could not reach") ? e.message : "We could not identify this plant right now. Please try again."); }
     finally { setLoading(false); }
   };
 
@@ -425,6 +463,7 @@ function IdentifyTab({ onAddPlant }) {
     };
     localStorage.setItem("plantpal_db", JSON.stringify([entry, ...existing]));
     setSaved(true);
+    window.toast("🌿 Saved to My Plants");
   };
 
   const handleAdd = () => {
@@ -452,8 +491,8 @@ function IdentifyTab({ onAddPlant }) {
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleFile(e.target.files[0]); e.target.value = ""; }} />
       {source && !loading && <button className="btn btn-primary" onClick={identify}>Identify Plant</button>}
       {source && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
-      {loading && <div className="loading-card"><div className="spinner" /><span>Analysing your plant…</span></div>}
-      {error && <div className="error-card">{error}</div>}
+      {loading && <SkeletonResult label="Analysing your plant" />}
+      {error && <ErrorCard message={error} onRetry={identify} />}
       {result && !loading && (
         <div className="result-card">
           <div className="result-header">
@@ -519,9 +558,9 @@ function HealthTab() {
       const cropped = cropRef.current();
       setPreview(cropped);
       const data = await diagnosePlant(cropped.split(",")[1], "image/jpeg");
-      if (data.error) setError(data.error + (data.detail ? ": " + data.detail : ""));
+      if (data.error) setError("We could not diagnose this photo. Try a close-up of the affected leaf.");
       else setDiag(data.results);
-    } catch (e) { setError("Could not diagnose: " + e.message); }
+    } catch (e) { setError(e.message.startsWith("Could not reach") ? e.message : "We could not diagnose this photo right now. Please try again."); }
     finally { setLoading(false); }
   };
 
@@ -546,8 +585,8 @@ function HealthTab() {
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleFile(e.target.files[0]); e.target.value = ""; }} />
       {source && !loading && <button className="btn btn-primary" onClick={diagnose}>Diagnose Disease or Pest</button>}
       {source && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
-      {loading && <div className="loading-card"><div className="spinner" /><span>Checking for diseases and pests…</span></div>}
-      {error && <div className="error-card">{error}</div>}
+      {loading && <SkeletonResult label="Checking for diseases and pests" />}
+      {error && <ErrorCard message={error} onRetry={diagnose} />}
       {diag && !loading && (
         <div className="result-card">
           <div className="advice-label">Most Likely Problems</div>
@@ -587,7 +626,7 @@ function HealthTab() {
   );
 }
 
-function RemindersTab({ pending, onPendingClear }) {
+function RemindersTab({ pending, onPendingClear, go }) {
   const [plants, setPlants] = useLocalStorage("plantpal_v2", []);
   const [name, setName] = useState("");
   const [freq, setFreq] = useState(7);
@@ -601,10 +640,11 @@ function RemindersTab({ pending, onPendingClear }) {
     if (!name.trim()) return;
     setPlants([...plants, { id: Date.now(), name: name.trim(), freq: Number(freq), lastWatered: today() }]);
     setName(""); setFreq(7);
+    window.toast(`🌱 Added ${name.trim()}`);
   };
 
-  const waterNow = id => setPlants(plants.map(p => p.id === id ? { ...p, lastWatered: today() } : p));
-  const remove = id => setPlants(plants.filter(p => p.id !== id));
+  const waterNow = id => { const p = plants.find(x => x.id === id); setPlants(plants.map(x => x.id === id ? { ...x, lastWatered: today() } : x)); window.toast(`💧 Watered ${p.name}`); };
+  const remove = id => { const p = plants.find(x => x.id === id); setPlants(plants.filter(x => x.id !== id)); window.toast(`Removed ${p.name}`, { label: "Undo", fn: () => setPlants(cur => [...cur, p]) }); };
 
   const handleExport = (plant) => {
     downloadICS(plant);
@@ -622,7 +662,7 @@ function RemindersTab({ pending, onPendingClear }) {
 
   return (
     <div className="tab-content">
-      <h2 className="tab-title">Watering Reminders</h2>
+      <h2 className="tab-title">Watering</h2>
       <p className="tab-sub">Add plants and export recurring reminders to your calendar.</p>
       <div className="add-card">
         <input className="input" placeholder="Plant name (e.g. Peace Lily)"
@@ -634,7 +674,7 @@ function RemindersTab({ pending, onPendingClear }) {
         </div>
         <button className="btn btn-primary" onClick={add}>Add Plant</button>
       </div>
-      {plants.length === 0 && <div className="empty-state"><div style={{fontSize:48}}>💧</div><div className="empty-text">No plants yet. Add one above!</div></div>}
+      {plants.length === 0 && <div className="empty-state"><div style={{fontSize:44}}>💧</div><h4>No reminders yet</h4><div className="empty-text">Add a plant above, or scan one to get a suggested schedule.</div><button className="btn btn-ghost" onClick={() => go("identify")}>Scan a plant</button></div>}
       <div className="plant-list">
         {plants.map(plant => {
           const s = getStatus(plant);
@@ -646,7 +686,7 @@ function RemindersTab({ pending, onPendingClear }) {
               </div>
               <div className={`status-badge ${s.cls}`}>{s.label}</div>
               <div className="plant-actions">
-                <button className="action-btn action-water" onClick={() => waterNow(plant.id)} title="Mark watered">💧</button>
+                <button className="action-btn action-water" onClick={() => waterNow(plant.id)} title="Mark watered" aria-label="Mark watered">💧</button>
                 <button className="action-btn action-cal" onClick={() => handleExport(plant)} title="Add to Calendar">{exported[plant.id] ? "✓" : "📅"}</button>
                 <button className="action-btn action-remove" onClick={() => remove(plant.id)} title="Remove">✕</button>
               </div>
@@ -757,40 +797,93 @@ const psText = (v) => {
 };
 const fToC = (f) => Math.round((f - 32) * 5 / 9);
 
+// ---- Perenual fallback (needs PERENUAL_API_KEY on the server) ----
+async function loadPerenual(plant) {
+  const sci = (plant.scientific_name || "").trim();
+  const key = "plantpal_pn_" + psSlugify(sci || plant.common_name);
+  const cached = psCacheGet(key);
+  if (cached) return cached.found === false ? null : cached;
+  const params = new URLSearchParams({ q: sci, common: plant.common_name || "" });
+  const r = await fetch("/api/perenual?" + params.toString());
+  if (r.status === 501) return null;
+  if (!r.ok) throw new Error(r.status === 429 ? "The daily limit for care lookups has been reached. Try again tomorrow." : "Care lookup failed (" + r.status + ")");
+  const j = await r.json();
+  psCacheSet(key, j);
+  return j.found === false ? null : j;
+}
+
+async function loadCare(plant) {
+  let psErr = null, pnErr = null;
+  try { const r = await loadPSCare(plant); if (r) return { source: "plantsolve", ...r }; } catch (e) { psErr = e; }
+  try { const r = await loadPerenual(plant); if (r) return { source: "perenual", data: r }; } catch (e) { pnErr = e; }
+  if (pnErr) throw pnErr;
+  if (psErr) throw psErr;
+  return null;
+}
+
+const psCap = (t) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : "");
+
 function CareGuide({ plant, onAddToReminders }) {
   const [state, setState] = useState({ loading: true });
   useEffect(() => {
     let live = true;
-    loadPSCare(plant)
+    setState({ loading: true });
+    loadCare(plant)
       .then(r => live && setState({ loading: false, result: r }))
       .catch(e => live && setState({ loading: false, error: e.message }));
     return () => { live = false; };
   }, [plant.id]);
 
-  if (state.loading) return <div className="loading-card" style={{boxShadow:"none",padding:"10px 0"}}><div className="spinner" /><span>Loading care guide…</span></div>;
-  if (state.error) return <div className="error-card">Could not load the care guide: {state.error}</div>;
-  if (!state.result) return <div className="tip-box"><span>🌱</span><span>No PlantSolve care guide for {plant.scientific_name || plant.common_name} yet. The free dataset only covers a limited set of popular plants. Try the Symptom Guide in the Health tab for general advice.</span></div>;
+  if (state.loading) return <div aria-busy="true"><div className="skel" style={{height:14,width:"30%",marginBottom:10}} /><div className="skel" style={{height:12,marginBottom:8}} /><div className="skel" style={{height:12,width:"80%",marginBottom:16}} /><div className="skel" style={{height:14,width:"30%",marginBottom:10}} /><div className="skel" style={{height:12,width:"90%"}} /></div>;
+  if (state.error) return <ErrorCard message={/daily limit/i.test(state.error) ? state.error : "We could not load the care guide. Check your connection and reopen this plant."} />;
+  if (!state.result) return <div className="tip-box"><span>🌱</span><span>No care guide found for {plant.scientific_name || plant.common_name} yet. Try the Symptom Guide in the Health tab for general advice.</span></div>;
 
-  const { slug, data } = state.result;
-  const care = data.care || {};
-  const maint = data.maintenance || {};
-  const t = care.temperature_range || {};
-  const temp = (typeof t.min_fahrenheit === "number" && typeof t.max_fahrenheit === "number")
-    ? `${t.min_fahrenheit} to ${t.max_fahrenheit} °F (${fToC(t.min_fahrenheit)} to ${fToC(t.max_fahrenheit)} °C)` : "";
-  const sections = [
-    ["💧 Watering", psText(care.water)],
-    ["☀️ Light", psText(care.sunlight)],
-    ["🪴 Soil", psText(care.soil_moisture_preference)],
-    ["🌡️ Temperature", temp],
-    ["✂️ Pruning", psText(maint.pruning)],
-    ["🌱 Propagation", psText(maint.propagation)],
-  ].filter(([, v]) => v);
-  const pageUrl = "https://www.plantsolve.com/plants/" + slug + "/";
+  const r = state.result;
+  let sections, difficulty = "", reminderDays = 7, note = "", credit;
+
+  if (r.source === "plantsolve") {
+    const care = r.data.care || {};
+    const maint = r.data.maintenance || {};
+    const t = care.temperature_range || {};
+    const temp = (typeof t.min_fahrenheit === "number" && typeof t.max_fahrenheit === "number")
+      ? `${t.min_fahrenheit} to ${t.max_fahrenheit} °F (${fToC(t.min_fahrenheit)} to ${fToC(t.max_fahrenheit)} °C)` : "";
+    sections = [
+      ["💧 Watering", psText(care.water)],
+      ["☀️ Light", psText(care.sunlight)],
+      ["🪴 Soil", psText(care.soil_moisture_preference)],
+      ["🌡️ Temperature", temp],
+      ["✂️ Pruning", psText(maint.pruning)],
+      ["🌱 Propagation", psText(maint.propagation)],
+    ];
+    difficulty = psText(care.difficulty);
+    credit = <>Care data from <a href={"https://www.plantsolve.com/plants/" + r.slug + "/"} target="_blank" rel="noopener noreferrer">PlantSolve</a> (<a href="https://www.plantsolve.com" target="_blank" rel="noopener noreferrer">PlantSolve Open Dataset</a>, CC BY 4.0).</>;
+  } else {
+    const d = r.data;
+    const nums = (d.watering_days || "").match(/\d+/g);
+    if (nums) reminderDays = Math.max(1, Math.round(nums.map(Number).reduce((a, b) => a + b, 0) / nums.length));
+    const water = d.watering ? psCap(d.watering) + (d.watering_days ? ". Roughly every " + d.watering_days + " days." : "") : "";
+    const where = d.indoor === true ? "Can be grown indoors." : d.indoor === false ? "Best grown outdoors." : "";
+    sections = [
+      ["💧 Watering", water],
+      ["☀️ Light", (d.sunlight || []).map(psCap).join(", ")],
+      ["🔁 Life cycle", [psCap(d.cycle), where].filter(Boolean).join(". ")],
+      ["✂️ Pruning", (d.pruning_month || []).length ? "Best pruned in " + d.pruning_month.join(", ") + "." : ""],
+      ["🌿 Growth", psCap(d.growth_rate)],
+      ["🧰 Maintenance", psCap(d.maintenance)],
+      ["📝 About", d.description || ""],
+    ];
+    difficulty = psCap(d.care_level);
+    if (!d.matched_exact) note = "Showing care data for " + (d.common_name || d.scientific_name) + ", a close relative of your plant.";
+    credit = <>Plant data from <a href="https://perenual.com" target="_blank" rel="noopener noreferrer">Perenual</a>.</>;
+  }
+
+  sections = sections.filter(([, v]) => v);
 
   return (
     <div className="care-guide">
-      {psText(care.difficulty) && <div className="badge badge-medium" style={{display:"inline-block",marginBottom:10}}>Difficulty: {psText(care.difficulty)}</div>}
-      {sections.length === 0 && <div className="tip-box"><span>📖</span><span>This profile has no structured care details yet. See the full guide on PlantSolve.</span></div>}
+      {difficulty && <div className="badge badge-medium" style={{display:"inline-block",marginBottom:10}}>{r.source === "perenual" ? "Care level" : "Difficulty"}: {difficulty}</div>}
+      {note && <div className="tip-box" style={{marginBottom:10}}><span>ℹ️</span><span>{note}</span></div>}
+      {sections.length === 0 && <div className="tip-box"><span>📖</span><span>This profile has no structured care details yet.</span></div>}
       {sections.map(([label, value], i) => (
         <div key={label}>
           {i > 0 && <div className="advice-divider" style={{margin:"10px 0"}} />}
@@ -798,93 +891,224 @@ function CareGuide({ plant, onAddToReminders }) {
           <div className="advice-text">{value}</div>
         </div>
       ))}
-      <button className="btn btn-primary" style={{marginTop:14}} onClick={() => onAddToReminders({ name: plant.common_name, freq: 7 })}>💧 Set up watering reminder</button>
-      <div className="sci-name" style={{fontSize:11,marginBottom:0}}>
-        Care data from <a href={pageUrl} target="_blank" rel="noopener noreferrer">PlantSolve</a> (<a href="https://www.plantsolve.com" target="_blank" rel="noopener noreferrer">PlantSolve Open Dataset</a>, CC BY 4.0). Adjust the reminder interval to match the watering tip.
+      <button className="btn btn-primary" style={{marginTop:14}} onClick={() => onAddToReminders({ name: plant.common_name, freq: reminderDays })}>💧 Set up watering reminder{r.source === "perenual" && reminderDays !== 7 ? " (every " + reminderDays + " days)" : ""}</button>
+      <div className="sci-name" style={{fontSize:11,marginBottom:0}}>{credit} Adjust the reminder interval to match the watering tip.</div>
+    </div>
+  );
+}
+
+window.toast = (msg, action) => window.dispatchEvent(new CustomEvent("pp-toast", { detail: { msg, action } }));
+
+function waterStatus(plant) {
+  const next = addDays(plant.lastWatered, plant.freq);
+  const diff = daysBetween(today(), next.toISOString().split("T")[0]);
+  if (diff < 0) return { diff, label: `${Math.abs(diff)}d overdue`, cls: "status-urgent", urgent: true };
+  if (diff === 0) return { diff, label: "Water today", cls: "status-today", urgent: true };
+  return { diff, label: `In ${diff} day${diff !== 1 ? "s" : ""}`, cls: "status-ok", urgent: false };
+}
+
+function readSaved() { try { return JSON.parse(localStorage.getItem("plantpal_db") || "[]"); } catch { return []; } }
+function Thumb({ photo, alt }) { return photo ? <img className="thumb" src={photo} alt={alt} /> : <div className="thumb">🌿</div>; }
+
+function SkeletonResult({ label }) {
+  return (
+    <div className="result-card" aria-busy="true">
+      <div className="skel-label">{label}…</div>
+      <div className="skel" style={{ height: 26, width: "60%", marginBottom: 8 }} />
+      <div className="skel" style={{ height: 14, width: "40%", marginBottom: 18 }} />
+      <div className="skel" style={{ height: 12, marginBottom: 8 }} />
+      <div className="skel" style={{ height: 12, width: "85%", marginBottom: 18 }} />
+      <div className="skel" style={{ height: 48 }} />
+    </div>
+  );
+}
+
+function ErrorCard({ message, onRetry }) {
+  return (
+    <div className="error-card" role="alert">
+      <span>{message}</span>
+      {onRetry && <button onClick={onRetry}>Try again</button>}
+    </div>
+  );
+}
+
+function Home({ go }) {
+  const [plants, setPlants] = useLocalStorage("plantpal_v2", []);
+  const saved = readSaved();
+  const photoFor = (name) => (saved.find(s => s.common_name === name) || {}).photo;
+  const due = plants.map(p => ({ p, s: waterStatus(p) })).filter(x => x.s.urgent).sort((a, b) => a.s.diff - b.s.diff);
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const dateStr = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  const water = (id, name) => {
+    setPlants(plants.map(p => p.id === id ? { ...p, lastWatered: today() } : p));
+    window.toast(`💧 Watered ${name}`);
+  };
+
+  return (
+    <div className="tab-content">
+      <div className="brand"><span className="brand-name">🌿 PlantPal</span><span className="eyebrow">{dateStr}</span></div>
+      <h1 className="greeting">{hello}.</h1>
+      <p className="tab-sub" style={{ marginBottom: 0 }}>
+        {plants.length === 0 ? "Let's meet your first plant." : due.length ? `${due.length} plant${due.length > 1 ? "s need" : " needs"} water today.` : "Everything is watered. Nice work."}
+      </p>
+
+      <div className="hero">
+        <h2>Identify a plant</h2>
+        <p>Snap or upload a photo and get its name and care guide in seconds.</p>
+        <button className="hero-btn" onClick={() => go("identify")}>📷 Scan a plant</button>
+      </div>
+
+      {plants.length > 0 && (
+        <div className="stats">
+          <div className="stat"><b>{plants.length}</b><span>Plants</span></div>
+          <div className="stat"><b>{due.length}</b><span>Due today</span></div>
+        </div>
+      )}
+
+      <div className="section-h"><h3>Today</h3>{plants.length > 0 && <button className="link-btn" onClick={() => go("reminders")}>All reminders</button>}</div>
+      {plants.length === 0 ? (
+        <div className="empty-state">
+          <div style={{ fontSize: 44 }}>🪴</div>
+          <h4>No plants yet</h4>
+          <div className="empty-text">Scan a plant to identify it, then set up watering reminders.</div>
+          <button className="btn btn-primary" onClick={() => go("identify")}>Scan your first plant</button>
+        </div>
+      ) : due.length === 0 ? (
+        <div className="empty-state"><div style={{ fontSize: 40 }}>🌤️</div><h4>All caught up</h4><div className="empty-text">Nothing to water today. We will let you know when it is time.</div></div>
+      ) : (
+        <div className="plant-list">
+          {due.map(({ p, s }) => (
+            <div key={p.id} className="plant-card urgent">
+              <Thumb photo={photoFor(p.name)} alt={p.name} />
+              <div className="plant-info">
+                <div className="plant-name">{p.name}</div>
+                <span className={`status-badge ${s.cls}`}>{s.label}</span>
+              </div>
+              <button className="action-btn action-water" onClick={() => water(p.id, p.name)} aria-label={`Mark ${p.name} watered`}>💧</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="section-h"><h3>Care tools</h3></div>
+      <div className="quick">
+        <button className="quick-btn" onClick={() => go("health")}><span style={{ fontSize: 22 }}>🩺</span><b>Diagnose a problem</b><span>Spot pests and disease</span></button>
+        <button className="quick-btn" onClick={() => go("myplants")}><span style={{ fontSize: 22 }}>🌿</span><b>My collection</b><span>{saved.length} saved</span></button>
       </div>
     </div>
   );
 }
 
-function MyPlantsTab({ onAddToReminders }) {
-  const [plants, setPlants] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("plantpal_db") || "[]"); }
-    catch { return []; }
-  });
-
+function MyPlantsTab({ onAddToReminders, go }) {
+  const [plants, setPlants] = useState(readSaved);
+  const [reminders] = useLocalStorage("plantpal_v2", []);
   const [openId, setOpenId] = useState(null);
+  const open = plants.find(p => p.id === openId);
+  const statusOf = (p) => { const r = reminders.find(x => x.name === p.common_name); return r ? waterStatus(r) : null; };
 
-  const remove = (id) => {
-    const updated = plants.filter(p => p.id !== id);
-    setPlants(updated);
+  const remove = (p) => {
+    const updated = plants.filter(x => x.id !== p.id);
+    setPlants(updated); setOpenId(null);
     localStorage.setItem("plantpal_db", JSON.stringify(updated));
+    window.toast(`Removed ${p.common_name}`, { label: "Undo", fn: () => {
+      const cur = readSaved(); const back = [p, ...cur];
+      localStorage.setItem("plantpal_db", JSON.stringify(back)); setPlants(back);
+    } });
   };
 
   return (
     <div className="tab-content">
       <h2 className="tab-title">My Plants</h2>
-      <p className="tab-sub">{plants.length} plant{plants.length !== 1 ? "s" : ""} saved to your collection.</p>
+      <p className="tab-sub">{plants.length} plant{plants.length !== 1 ? "s" : ""} in your collection.</p>
       {plants.length === 0 && (
         <div className="empty-state">
-          <div style={{fontSize:48}}>🌿</div>
-          <div className="empty-text">No plants saved yet. Identify a plant and tap Save Plant to add it here.</div>
+          <div style={{ fontSize: 44 }}>🌱</div>
+          <h4>Your collection is empty</h4>
+          <div className="empty-text">Identify a plant and tap Save to build your collection.</div>
+          <button className="btn btn-primary" onClick={() => go("identify")}>Scan a plant</button>
         </div>
       )}
-      <div className="db-list">
-        {plants.map(p => (
-          <div key={p.id} className="db-card">
-            {p.photo
-              ? <img src={p.photo} className="db-card-img" alt={p.common_name} />
-              : <div className="db-card-img-placeholder">🌿</div>}
-            <div className="db-card-body">
-              <div className="db-card-name">{p.common_name}</div>
-              <div className="db-card-sci">{p.scientific_name}</div>
-              <div className="db-card-meta">
-                <div>
-                  <div className="db-card-date">Saved {p.date_saved}</div>
-                  <div className={`badge badge-${(p.confidence||"low").toLowerCase()}`} style={{marginTop:4,display:"inline-block"}}>{p.confidence}</div>
-                </div>
-                <div className="db-card-actions">
-                  <button className="action-btn action-cal" onClick={() => setOpenId(openId === p.id ? null : p.id)} title="Care Guide">📖</button>
-                  <button className="action-btn action-cal" onClick={() => onAddToReminders({ name: p.common_name, freq: 7 })} title="Add to Reminders">💧</button>
-                  <button className="action-btn action-remove" onClick={() => remove(p.id)} title="Delete">✕</button>
-                </div>
+      <div className="db-grid">
+        {plants.map(p => {
+          const s = statusOf(p);
+          return (
+            <button key={p.id} className="db-card" onClick={() => setOpenId(p.id)}>
+              {p.photo ? <img src={p.photo} className="db-card-img" alt={p.common_name} /> : <div className="db-card-img-placeholder">🌿</div>}
+              <div className="db-card-body">
+                <div className="db-card-name">{p.common_name}</div>
+                <div className="db-card-sci">{p.scientific_name}</div>
+                {s ? <span className={`status-badge ${s.cls}`}>{s.label}</span> : <span className="status-badge status-ok">No reminder</span>}
               </div>
-              {openId === p.id && (
-                <div style={{marginTop:12,paddingTop:12,borderTop:"1px solid var(--gray-100)"}}>
-                  <CareGuide plant={p} onAddToReminders={onAddToReminders} />
-                </div>
-              )}
+            </button>
+          );
+        })}
+      </div>
+      {open && (
+        <>
+          <div className="scrim" onClick={() => setOpenId(null)} />
+          <div className="sheet" role="dialog" aria-label={open.common_name}>
+            <button className="sheet-close" onClick={() => setOpenId(null)} aria-label="Close">✕</button>
+            {open.photo ? <img className="sheet-img" src={open.photo} alt={open.common_name} /> : <div className="sheet-img">🌿</div>}
+            <div className="sheet-body">
+              <div className="result-header" style={{ marginBottom: 0 }}>
+                <div><div className="common-name">{open.common_name}</div><div className="sci-name">{open.scientific_name}</div></div>
+                <div className={`badge badge-${(open.confidence || "low").toLowerCase()}`}>{open.confidence}</div>
+              </div>
+              <div className="sheet-actions">
+                <button className="btn btn-primary" style={{ margin: 0 }} onClick={() => onAddToReminders({ name: open.common_name, freq: 7 })}>💧 Add reminder</button>
+                <button className="btn btn-ghost" style={{ margin: 0, width: 110 }} onClick={() => remove(open)}>Remove</button>
+              </div>
+              <div className="eyebrow" style={{ margin: "18px 0 10px" }}>Care guide</div>
+              <CareGuide plant={open} onAddToReminders={onAddToReminders} />
             </div>
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 }
 
 function App() {
-  const [tab, setTab] = useState("identify");
+  const [tab, setTab] = useState("home");
   const [pending, setPending] = useState(null);
-  const handleAddPlant = (plant) => { setPending(plant); setTab("reminders"); };
-  const handleAddFromDB = (plant) => { setPending(plant); setTab("reminders"); };
+  const [toasts, setToasts] = useState([]);
+  useEffect(() => {
+    const h = (e) => {
+      const id = Date.now() + Math.random();
+      setToasts(t => [...t.slice(-1), { id, ...e.detail }]);
+      setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4500);
+    };
+    window.addEventListener("pp-toast", h);
+    return () => window.removeEventListener("pp-toast", h);
+  }, []);
+  const goReminder = (plant) => { setPending(plant); setTab("reminders"); };
+  const TABS = [["home", "🏡", "Home"], ["myplants", "🌿", "Plants"], ["identify", "📷", "Scan"], ["health", "🩺", "Health"], ["reminders", "💧", "Water"]];
   return (
     <div className="app">
-      <header className="header">
-        <span style={{fontSize:28}}>🌿</span>
-        <div><div className="header-title">PlantPal</div><div className="header-sub">Your personal plant assistant</div></div>
-      </header>
-      <nav className="nav">
-        {[["identify","🔍","Identify"],["health","🩺","Health"],["reminders","💧","Reminders"],["myplants","🌿","My Plants"]].map(([id,icon,label]) => (
-          <button key={id} className={`nav-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>
-            <span className="nav-icon">{icon}</span><span className="nav-label">{label}</span>
+      <main key={tab} className="view">
+        {tab === "home" && <Home go={setTab} />}
+        {tab === "identify" && <IdentifyTab onAddPlant={goReminder} />}
+        {tab === "health" && <HealthTab />}
+        {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} go={setTab} />}
+        {tab === "myplants" && <MyPlantsTab onAddToReminders={goReminder} go={setTab} />}
+      </main>
+      <div className="toasts" aria-live="polite">
+        {toasts.map(t => (
+          <div key={t.id} className="toast"><span>{t.msg}</span>
+            {t.action && <button onClick={() => { t.action.fn(); setToasts(x => x.filter(y => y.id !== t.id)); }}>{t.action.label}</button>}
+          </div>
+        ))}
+      </div>
+      <nav className="tabbar" aria-label="Main">
+        {TABS.map(([id, icon, label]) => (
+          <button key={id} className={`tab-btn ${id === "identify" ? "tab-scan" : ""} ${tab === id ? "active" : ""}`} onClick={() => setTab(id)} aria-current={tab === id ? "page" : undefined}>
+            {id === "identify" ? <span className="fab">{icon}</span> : <span className="ico">{icon}</span>}
+            <span className="lbl">{label}</span>
           </button>
         ))}
       </nav>
-      {tab === "identify" && <IdentifyTab onAddPlant={handleAddPlant} />}
-      {tab === "health" && <HealthTab />}
-      {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} />}
-      {tab === "myplants" && <MyPlantsTab onAddToReminders={handleAddFromDB} />}
     </div>
   );
 }
