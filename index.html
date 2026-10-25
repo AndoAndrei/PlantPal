@@ -812,10 +812,52 @@ async function loadPerenual(plant) {
   return j.found === false ? null : j;
 }
 
+// ---- Built-in general care guidance (written for PlantPal, no network needed) ----
+// [pattern, name, difficulty, reminder days, water, light, soil and feeding, tip]
+const BUILTIN_CARE = [
+  [/petunia/, "Petunia", "Easy", 2, "Keep soil evenly moist and water when the top inch feels dry. Containers in hot weather may need water daily.", "Full sun, at least 6 hours a day.", "Well-draining potting mix. Feed every 1 to 2 weeks during the growing season.", "Pinch off spent flowers and trim leggy stems to keep it blooming."],
+  [/epipremnum|pothos/, "Pothos", "Easy", 7, "Water when the top 2 inches of soil are dry. It tolerates a missed watering better than too much water.", "Bright indirect light. Copes with low light but grows slower.", "Standard well-draining potting mix. Feed monthly in spring and summer.", "Trim long vines to keep it full. Toxic to cats and dogs."],
+  [/monstera/, "Monstera", "Easy", 7, "Water when the top 2 to 3 inches are dry, then let excess drain away.", "Bright indirect light. Direct midday sun can scorch the leaves.", "Chunky, airy mix with bark or perlite. Feed monthly in the growing season.", "Give it a moss pole to climb and wipe the leaves now and then."],
+  [/sansevieria|dracaena trifasciata|snake plant/, "Snake plant", "Easy", 14, "Let the soil dry out fully between waterings, roughly every 2 to 3 weeks and less in winter.", "Low to bright indirect light. Very adaptable.", "Cactus or succulent mix with good drainage.", "Overwatering is the main cause of trouble, so when in doubt, wait."],
+  [/chlorophytum|spider plant/, "Spider plant", "Easy", 7, "Water when the top inch is dry. Brown tips often mean tap water minerals or dry air.", "Bright indirect light.", "Regular potting mix. Feed monthly in spring and summer.", "Plantlets on long stems can be rooted in water to make new plants."],
+  [/spathiphyllum|peace lily/, "Peace lily", "Easy", 7, "Water when the top inch is dry or the leaves just start to droop. It recovers quickly.", "Low to medium indirect light. Avoid direct sun.", "Regular potting mix. Feed every 6 to 8 weeks.", "Toxic to pets. Brown tips can point to dry air or fluoridated water."],
+  [/ficus|rubber plant|fiddle/, "Ficus and rubber plant", "Moderate", 7, "Water when the top 2 inches are dry. Leaf drop often follows overwatering or a sudden change.", "Bright indirect light, with a little gentle direct sun for rubber plants.", "Well-draining potting mix. Feed monthly in the growing season.", "Dislikes being moved and cold drafts, so pick a spot and leave it."],
+  [/aloe/, "Aloe", "Easy", 14, "Water deeply, then let the soil dry completely. Every 2 to 3 weeks is typical.", "Bright light, including some direct sun.", "Cactus mix in a pot with drainage holes.", "Soft, mushy leaves mean too much water."],
+  [/echeveria|crassula|jade|sedum|haworthia|succulent/, "Succulent", "Easy", 14, "Water thoroughly only when the soil is completely dry, then let it drain.", "Bright light, and several hours of direct sun for most types.", "Gritty, fast-draining succulent mix.", "Stretching and pale growth means it needs more light."],
+  [/cactus|opuntia|echinocactus|mammillaria/, "Cactus", "Easy", 21, "Water deeply but rarely, and let the soil dry fully. Cut back almost completely in winter.", "Full sun or very bright light.", "Cactus mix with plenty of grit.", "A pot with drainage holes matters more than anything else."],
+  [/philodendron/, "Philodendron", "Easy", 7, "Water when the top 1 to 2 inches are dry.", "Bright indirect light. Tolerates medium light.", "Well-draining potting mix. Feed monthly in the growing season.", "Pinch the tips to encourage a bushier plant. Toxic to pets."],
+  [/zamioculcas|zz plant/, "ZZ plant", "Easy", 14, "Water only when the soil is fully dry. Its thick roots store water.", "Low to bright indirect light.", "Well-draining potting mix. Feed a couple of times a year.", "Yellow leaves usually mean overwatering. Toxic to pets."],
+  [/phalaenopsis|orchid/, "Orchid", "Moderate", 7, "Soak the roots about once a week, let it drain fully, and never leave water sitting in the pot.", "Bright indirect light, such as an east window.", "Orchid bark mix, not regular soil. Use a weak orchid fertiliser every few weeks.", "Leave the flower spike in place until it turns brown."],
+  [/ocimum|basil/, "Basil", "Easy", 2, "Keep the soil lightly moist and never let it dry out completely.", "Full sun, 6 to 8 hours a day.", "Rich, well-draining soil. Feed every few weeks.", "Pinch off flower buds and pick from the top to keep it leafy."],
+  [/mentha|\bmint\b/, "Mint", "Easy", 3, "Keep the soil consistently moist.", "Full sun to part shade.", "Rich, moist soil. Feed lightly in spring.", "Grow it in its own pot, because it spreads aggressively."],
+  [/solanum lycopersicum|tomato/, "Tomato", "Moderate", 3, "Water deeply and regularly at the base, aiming for steady moisture to avoid split fruit.", "Full sun, 6 to 8 hours or more.", "Rich soil with compost. Feed every 2 weeks once fruit sets.", "Stake or cage the plant and remove suckers on indeterminate types."],
+  [/pelargonium|geranium/, "Geranium", "Easy", 5, "Water when the top inch is dry. Let the pot drain well.", "Full sun to bright light, with some afternoon shade in hot climates.", "Well-draining potting mix. Feed every 2 to 4 weeks while flowering.", "Deadhead spent blooms to keep new ones coming."],
+  [/\brosa\b|\brose\b/, "Rose", "Moderate", 7, "Water deeply about once a week at the base and avoid wetting the leaves.", "Full sun, at least 6 hours a day.", "Rich, well-draining soil. Feed in spring and after the first flush of blooms.", "Prune in late winter and remove spent flowers."],
+  [/lavandula|lavender/, "Lavender", "Easy", 10, "Water sparingly. Let the soil dry out between waterings once established.", "Full sun.", "Gritty, well-draining, not too rich.", "Trim lightly after flowering and avoid cutting into old wood."],
+  [/rosmarinus|rosemary/, "Rosemary", "Easy", 10, "Let the soil dry out between waterings. It dislikes wet roots.", "Full sun.", "Gritty, well-draining soil.", "Harvest regularly to keep it compact."],
+  [/nephrolepis|\bfern\b/, "Fern", "Moderate", 4, "Keep the soil evenly moist, but not soggy.", "Bright indirect light. Avoid direct sun.", "Rich, peaty potting mix. Feed lightly in spring and summer.", "Likes humidity, so a bathroom or pebble tray helps."],
+  [/calathea|goeppertia|maranta|prayer plant/, "Calathea and prayer plant", "Moderate", 6, "Water when the top inch is dry, ideally with filtered or rainwater.", "Medium to bright indirect light.", "Light, well-draining mix. Feed monthly in the growing season.", "Crispy edges usually mean dry air or tap water."],
+  [/dracaena|dragon tree/, "Dracaena", "Easy", 10, "Let the top few inches dry before watering.", "Medium to bright indirect light.", "Well-draining potting mix.", "Brown tips can come from fluoride in tap water."],
+  [/begonia/, "Begonia", "Moderate", 5, "Water when the top inch is dry and avoid wetting the leaves.", "Bright indirect light. Some outdoor types like part shade.", "Light, well-draining mix. Feed every 2 weeks while flowering.", "Good airflow helps prevent powdery mildew."],
+  [/tagetes|marigold/, "Marigold", "Easy", 4, "Water at the base when the top inch is dry.", "Full sun.", "Average soil. Go easy on fertiliser or you get leaves instead of flowers.", "Deadhead regularly for more blooms."],
+  [/hydrangea/, "Hydrangea", "Moderate", 3, "Keep the soil consistently moist. It wilts quickly when dry.", "Morning sun with afternoon shade.", "Rich, moist, well-draining soil.", "Prune at the right time for your type, because some bloom on old wood."],
+  [/impatiens/, "Impatiens", "Easy", 3, "Keep the soil consistently moist.", "Part to full shade.", "Rich, well-draining soil. Feed every few weeks.", "Wilting in the afternoon sun usually recovers with water and shade."],
+  [/helianthus|sunflower/, "Sunflower", "Easy", 5, "Water deeply but not often, so roots grow down.", "Full sun, 6 to 8 hours or more.", "Average, well-draining soil.", "Tall types may need a stake in windy spots."],
+];
+
+function findBuiltIn(plant) {
+  const text = ((plant.scientific_name || "") + " " + (plant.common_name || "")).toLowerCase();
+  const hit = BUILTIN_CARE.find(e => e[0].test(text));
+  if (!hit) return null;
+  const [, name, difficulty, days, water, light, soil, tip] = hit;
+  return { name, difficulty, days, water, light, soil, tip };
+}
+
 async function loadCare(plant) {
   let psErr = null, pnErr = null;
   try { const r = await loadPSCare(plant); if (r) return { source: "plantsolve", ...r }; } catch (e) { psErr = e; }
-  try { const r = await loadPerenual(plant); if (r) return { source: "perenual", data: r }; } catch (e) { pnErr = e; }
+  const b = findBuiltIn(plant); if (b) return { source: "builtin", data: b };
+  try { const r = await loadPerenual(plant); const usable = r && (r.watering || r.description || (r.sunlight || []).length || r.cycle || r.care_level || r.growth_rate || r.maintenance || (r.pruning_month || []).length); if (usable) return { source: "perenual", data: r }; } catch (e) { pnErr = e; }
   if (pnErr) throw pnErr;
   if (psErr) throw psErr;
   return null;
@@ -857,6 +899,13 @@ function CareGuide({ plant, onAddToReminders }) {
     ];
     difficulty = psText(care.difficulty);
     credit = <>Care data from <a href={"https://www.plantsolve.com/plants/" + r.slug + "/"} target="_blank" rel="noopener noreferrer">PlantSolve</a> (<a href="https://www.plantsolve.com" target="_blank" rel="noopener noreferrer">PlantSolve Open Dataset</a>, CC BY 4.0).</>;
+  } else if (r.source === "builtin") {
+    const d = r.data;
+    reminderDays = d.days;
+    difficulty = d.difficulty;
+    sections = [["💧 Watering", d.water], ["☀️ Light", d.light], ["🪴 Soil and feeding", d.soil], ["💡 Tip", d.tip]];
+    note = "General care guidance for " + d.name + ". Your home and climate may call for small adjustments.";
+    credit = <>General guidance written for PlantPal.</>;
   } else {
     const d = r.data;
     const nums = (d.watering_days || "").match(/\d+/g);
@@ -891,7 +940,7 @@ function CareGuide({ plant, onAddToReminders }) {
           <div className="advice-text">{value}</div>
         </div>
       ))}
-      <button className="btn btn-primary" style={{marginTop:14}} onClick={() => onAddToReminders({ name: plant.common_name, freq: reminderDays })}>💧 Set up watering reminder{r.source === "perenual" && reminderDays !== 7 ? " (every " + reminderDays + " days)" : ""}</button>
+      <button className="btn btn-primary" style={{marginTop:14}} onClick={() => onAddToReminders({ name: plant.common_name, freq: reminderDays })}>💧 Set up watering reminder{r.source !== "plantsolve" && reminderDays !== 7 ? " (every " + reminderDays + " days)" : ""}</button>
       <div className="sci-name" style={{fontSize:11,marginBottom:0}}>{credit} Adjust the reminder interval to match the watering tip.</div>
     </div>
   );
