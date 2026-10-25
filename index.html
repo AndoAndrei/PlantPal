@@ -1331,6 +1331,7 @@ function App() {
     return () => window.removeEventListener("pp-toast", h);
   }, []);
   useEffect(() => { if (document.startViewTransition) document.documentElement.classList.add("vt"); }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, [tab]);
   const goReminder = (plant) => { setPending(plant); setTab("reminders"); };
   const TABS = [["home", "🏡", "Home"], ["myplants", "🌿", "Plants"], ["identify", "📷", "Scan"], ["health", "🩺", "Health"], ["reminders", "💧", "Water"]];
   return (
