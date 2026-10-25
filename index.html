@@ -805,7 +805,7 @@ async function loadPerenual(plant) {
   if (cached) return cached.found === false ? null : cached;
   const params = new URLSearchParams({ q: sci, common: plant.common_name || "" });
   const r = await fetch("/api/perenual?" + params.toString());
-  if (r.status === 501) return null;
+  if (r.status === 501 || r.status === 404) return null;
   if (!r.ok) throw new Error(r.status === 429 ? "The daily limit for care lookups has been reached. Try again tomorrow." : "Care lookup failed (" + r.status + ")");
   const j = await r.json();
   psCacheSet(key, j);
@@ -883,7 +883,7 @@ function CareGuide({ plant, onAddToReminders }) {
     <div className="care-guide">
       {difficulty && <div className="badge badge-medium" style={{display:"inline-block",marginBottom:10}}>{r.source === "perenual" ? "Care level" : "Difficulty"}: {difficulty}</div>}
       {note && <div className="tip-box" style={{marginBottom:10}}><span>ℹ️</span><span>{note}</span></div>}
-      {sections.length === 0 && <div className="tip-box"><span>📖</span><span>This profile has no structured care details yet.</span></div>}
+      {sections.length === 0 && <div className="tip-box"><span>📖</span><span>This profile has no care details we can show yet.{r.source === "perenual" ? " Data received: " + (Object.keys(r.data || {}).join(", ") || "nothing") + "." : ""}</span></div>}
       {sections.map(([label, value], i) => (
         <div key={label}>
           {i > 0 && <div className="advice-divider" style={{margin:"10px 0"}} />}
