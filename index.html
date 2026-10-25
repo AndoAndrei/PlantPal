@@ -510,7 +510,7 @@ function loadPSIndex() {
   if (!psIndexPromise) {
     const cached = psCacheGet("plantpal_ps_index");
     psIndexPromise = cached ? Promise.resolve(cached)
-      : fetch(PS_BASE + "index.json")
+      : fetch("/api/care")
           .then(r => { if (!r.ok) throw new Error("Care index unavailable (" + r.status + ")"); return r.json(); })
           .then(d => {
             const list = Array.isArray(d) ? d : (d.plants || []);
@@ -555,7 +555,7 @@ async function loadPSCare(plant) {
   const key = "plantpal_ps_" + match.slug;
   let raw = psCacheGet(key);
   if (!raw) {
-    const r = await fetch(PS_BASE + match.slug + ".json");
+    const r = await fetch("/api/care?slug=" + encodeURIComponent(match.slug));
     if (!r.ok) throw new Error("Care guide unavailable (" + r.status + ")");
     raw = await r.json();
     psCacheSet(key, raw);
