@@ -7,9 +7,12 @@
   <meta name="author" content="Andrei Ando" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="PlantPal" />
-  <title>PlantPal 🌿</title>
+  <meta name="apple-mobile-web-app-title" content="Plant Pal" />
+  <title>Plant Pal</title>
   <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,6 +48,7 @@
     .tab-scan .lbl { color: var(--forest); }
     /* home */
     .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .brand-logo { height: 40px; width: auto; display: block; }
     .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--forest); }
     .greeting { font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--forest); line-height: 1.1; letter-spacing: -.8px; margin: 4px 0 6px; }
     .hero { background: linear-gradient(150deg, #2f7a4d 0%, #1f4d36 100%); color: #fff; border-radius: 26px; padding: 22px 20px; margin: 20px 0 4px; position: relative; overflow: hidden; }
@@ -1155,7 +1159,7 @@ function Home({ go }) {
 
   return (
     <div className="tab-content">
-      <div className="brand"><span className="brand-name">🌿 PlantPal</span><span className="eyebrow">{dateStr}</span></div>
+      <div className="brand"><img className="brand-logo" src="/logo-horizontal.png" alt="Plant Pal" /><span className="eyebrow">{dateStr}</span></div>
       <h1 className="greeting">{hello}.</h1>
       <p className="tab-sub" style={{ marginBottom: 0 }}>
         {plants.length === 0 ? "Let's meet your first plant." : due.length ? `${due.length} plant${due.length > 1 ? "s need" : " needs"} water today.` : "Everything is watered. Nice work."}
