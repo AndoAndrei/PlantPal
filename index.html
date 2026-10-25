@@ -835,7 +835,7 @@ function CareGuide({ plant, onAddToReminders }) {
   }, [plant.id]);
 
   if (state.loading) return <div aria-busy="true"><div className="skel" style={{height:14,width:"30%",marginBottom:10}} /><div className="skel" style={{height:12,marginBottom:8}} /><div className="skel" style={{height:12,width:"80%",marginBottom:16}} /><div className="skel" style={{height:14,width:"30%",marginBottom:10}} /><div className="skel" style={{height:12,width:"90%"}} /></div>;
-  if (state.error) return <ErrorCard message={/daily limit/i.test(state.error) ? state.error : "We could not load the care guide. Check your connection and reopen this plant."} />;
+  if (state.error) return <ErrorCard message={(/daily limit/i.test(state.error) ? state.error : "We could not load the care guide. Check your connection and reopen this plant.") + " (" + state.error + ")"} />;
   if (!state.result) return <div className="tip-box"><span>🌱</span><span>No care guide found for {plant.scientific_name || plant.common_name} yet. Try the Symptom Guide in the Health tab for general advice.</span></div>;
 
   const r = state.result;
