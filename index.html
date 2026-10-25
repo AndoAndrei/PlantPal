@@ -167,6 +167,16 @@ async function identifyPlant(base64, mimeType) {
   return await res.json();
 }
 
+async function diagnosePlant(base64, mimeType) {
+  const res = await fetch("/api/diagnose", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: base64, mimeType })
+  });
+  if (!res.ok) throw new Error(`Server error ${res.status}`);
+  return await res.json();
+}
+
 const SYMPTOMS = [
   { id: "yellow", label: "🟡 Yellow Leaves", cause: "Overwatering or nutrient deficiency", action: "Reduce watering and check drainage. Let soil dry between waterings." },
   { id: "brown", label: "🟤 Brown Tips", cause: "Low humidity or underwatering", action: "Mist leaves regularly and water more consistently." },
@@ -306,11 +316,84 @@ function IdentifyTab({ onAddPlant }) {
 
 function HealthTab() {
   const [symptom, setSymptom] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [image, setImage] = useState(null);
+  const [diag, setDiag] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const fileRef = useRef();
   const advice = SYMPTOMS.find(s => s.id === symptom);
+
+  const handleFile = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        const resized = canvas.toDataURL("image/jpeg", 0.85);
+        setPreview(resized);
+        setImage({ base64: resized.split(",")[1], type: "image/jpeg" });
+        setDiag(null); setError(null);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const diagnose = async () => {
+    setLoading(true); setError(null); setDiag(null);
+    try {
+      const data = await diagnosePlant(image.base64, image.type);
+      if (data.error) setError(data.error + (data.detail ? ": " + data.detail : ""));
+      else setDiag(data.results);
+    } catch (e) { setError("Could not diagnose: " + e.message); }
+    finally { setLoading(false); }
+  };
+
+  const clear = () => { setPreview(null); setImage(null); setDiag(null); setError(null); };
+
   return (
     <div className="tab-content">
       <h2 className="tab-title">Plant Health</h2>
-      <p className="tab-sub">Select a symptom to get care advice.</p>
+      <p className="tab-sub">Photograph an affected leaf, stem or fruit to detect diseases and pests.</p>
+      <div className={`dropzone ${preview ? "has-image" : ""}`} onClick={() => fileRef.current.click()}
+        onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+        onDragOver={e => e.preventDefault()}>
+        {preview
+          ? <img src={preview} className="preview-img" alt="affected plant" />
+          : <div className="drop-placeholder"><div className="drop-icon">🔍</div><div className="drop-text">Tap or drag a photo of the problem</div></div>}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+      {preview && !loading && <button className="btn btn-primary" onClick={diagnose}>Diagnose Disease or Pest</button>}
+      {preview && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
+      {loading && <div className="loading-card"><div className="spinner" /><span>Checking for diseases and pests…</span></div>}
+      {error && <div className="error-card">{error}</div>}
+      {diag && !loading && (
+        <div className="result-card">
+          <div className="advice-label">Most Likely Problems</div>
+          {diag.map((d, i) => (
+            <div key={d.code} style={{display:"flex",gap:10,alignItems:"center",padding:"10px 0",borderTop: i ? "1px solid var(--gray-100)" : "none"}}>
+              {d.image && <img src={d.image} alt={d.description} title={d.citation || ""} style={{width:56,height:56,borderRadius:10,objectFit:"cover",flexShrink:0}} />}
+              <div style={{flex:1,minWidth:0}}>
+                <div className="common-name" style={{fontSize:15}}>{d.description}</div>
+                <div className="sci-name">EPPO code {d.code}</div>
+              </div>
+              <div className={`badge badge-${d.confidence.toLowerCase()}`}>{d.score}%</div>
+            </div>
+          ))}
+          <div className="tip-box" style={{marginTop:10}}><span>💡</span><span>Only a limited list of plants and pathologies is supported. Treat results as a guide and check the symptom guide below or ask a local garden centre.</span></div>
+          {diag.some(d => d.citation) && <div className="sci-name" style={{marginTop:8,fontSize:11}}>Reference photos: Ephytia / INRAE via Pl@ntNet, CC BY-SA</div>}
+        </div>
+      )}
+
+      <h3 className="tab-title" style={{fontSize:16,marginTop:24}}>Symptom Guide</h3>
+      <p className="tab-sub">Or select a symptom to get care advice.</p>
       <div className="symptom-grid">
         {SYMPTOMS.map(s => (
           <button key={s.id} className={`symptom-btn ${symptom === s.id ? "active" : ""}`}
@@ -326,7 +409,6 @@ function HealthTab() {
           <div className="advice-text">{advice.action}</div>
         </div>
       )}
-      {!symptom && <div className="empty-state"><div style={{fontSize:48}}>🌱</div><div className="empty-text">Select a symptom above</div></div>}
     </div>
   );
 }
@@ -408,11 +490,142 @@ function RemindersTab({ pending, onPendingClear }) {
   );
 }
 
+// ---- PlantSolve care data (static, CC BY 4.0, https://www.plantsolve.com/developers/) ----
+const PS_BASE = "https://www.plantsolve.com/api/v1/plants/";
+const PS_TTL = 7 * 86400000;
+let psIndexPromise = null;
+
+function psCacheGet(key) {
+  try {
+    const c = JSON.parse(localStorage.getItem(key));
+    if (c && Date.now() - c.t < PS_TTL) return c.v;
+  } catch {}
+  return null;
+}
+function psCacheSet(key, v) {
+  try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch {}
+}
+
+function loadPSIndex() {
+  if (!psIndexPromise) {
+    const cached = psCacheGet("plantpal_ps_index");
+    psIndexPromise = cached ? Promise.resolve(cached)
+      : fetch(PS_BASE + "index.json")
+          .then(r => { if (!r.ok) throw new Error("Care index unavailable (" + r.status + ")"); return r.json(); })
+          .then(d => {
+            const list = Array.isArray(d) ? d : (d.plants || []);
+            const slim = list.map(({ slug, scientificName }) => ({ slug, scientificName }));
+            psCacheSet("plantpal_ps_index", slim);
+            return slim;
+          });
+    psIndexPromise = psIndexPromise.catch(e => { psIndexPromise = null; throw e; });
+  }
+  return psIndexPromise;
+}
+
+const psSlugify = (t) => (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const psHasCultivar = (t) => /['\u2018\u2019"]/.test(t || "");
+function psBinomial(t) {
+  return (t || "").toLowerCase()
+    .replace(/\(.*?\)/g, " ")
+    .replace(/['\u2018\u2019"].*?['\u2018\u2019"]/g, " ")
+    .replace(/\u00d7/g, " ")
+    .replace(/[^a-z\s-]/g, " ")
+    .split(/\s+/).filter(w => w && w !== "spp" && w !== "sp" && w !== "x")
+    .slice(0, 2).join(" ");
+}
+
+function findPSMatch(index, plant) {
+  const b = psBinomial(plant.scientific_name);
+  const commonSlug = psSlugify(plant.common_name);
+  if (b.split(" ").length === 2) {
+    const cands = index.filter(e => psBinomial(e.scientificName) === b);
+    const plain = cands.filter(e => !psHasCultivar(e.scientificName));
+    const pool = plain.length ? plain : cands;
+    const best = pool.find(e => e.slug === psSlugify(b)) || pool.find(e => e.slug === commonSlug) || pool[0];
+    if (best) return best;
+  }
+  return index.find(e => e.slug === commonSlug) || null;
+}
+
+async function loadPSCare(plant) {
+  const index = await loadPSIndex();
+  const match = findPSMatch(index, plant);
+  if (!match) return null;
+  const key = "plantpal_ps_" + match.slug;
+  let raw = psCacheGet(key);
+  if (!raw) {
+    const r = await fetch(PS_BASE + match.slug + ".json");
+    if (!r.ok) throw new Error("Care guide unavailable (" + r.status + ")");
+    raw = await r.json();
+    psCacheSet(key, raw);
+  }
+  return { slug: match.slug, data: raw.plant || raw };
+}
+
+const psText = (v) => {
+  if (typeof v === "string") return v.trim();
+  if (Array.isArray(v)) return v.filter(x => typeof x === "string").join(", ");
+  return "";
+};
+const fToC = (f) => Math.round((f - 32) * 5 / 9);
+
+function CareGuide({ plant, onAddToReminders }) {
+  const [state, setState] = useState({ loading: true });
+  useEffect(() => {
+    let live = true;
+    loadPSCare(plant)
+      .then(r => live && setState({ loading: false, result: r }))
+      .catch(e => live && setState({ loading: false, error: e.message }));
+    return () => { live = false; };
+  }, [plant.id]);
+
+  if (state.loading) return <div className="loading-card" style={{boxShadow:"none",padding:"10px 0"}}><div className="spinner" /><span>Loading care guide…</span></div>;
+  if (state.error) return <div className="error-card">Could not load the care guide: {state.error}</div>;
+  if (!state.result) return <div className="tip-box"><span>🌱</span><span>No PlantSolve care guide for this plant yet. Try the Symptom Guide in the Health tab for general advice.</span></div>;
+
+  const { slug, data } = state.result;
+  const care = data.care || {};
+  const maint = data.maintenance || {};
+  const t = care.temperature_range || {};
+  const temp = (typeof t.min_fahrenheit === "number" && typeof t.max_fahrenheit === "number")
+    ? `${t.min_fahrenheit} to ${t.max_fahrenheit} °F (${fToC(t.min_fahrenheit)} to ${fToC(t.max_fahrenheit)} °C)` : "";
+  const sections = [
+    ["💧 Watering", psText(care.water)],
+    ["☀️ Light", psText(care.sunlight)],
+    ["🪴 Soil", psText(care.soil_moisture_preference)],
+    ["🌡️ Temperature", temp],
+    ["✂️ Pruning", psText(maint.pruning)],
+    ["🌱 Propagation", psText(maint.propagation)],
+  ].filter(([, v]) => v);
+  const pageUrl = "https://www.plantsolve.com/plants/" + slug + "/";
+
+  return (
+    <div className="care-guide">
+      {psText(care.difficulty) && <div className="badge badge-medium" style={{display:"inline-block",marginBottom:10}}>Difficulty: {psText(care.difficulty)}</div>}
+      {sections.length === 0 && <div className="tip-box"><span>📖</span><span>This profile has no structured care details yet. See the full guide on PlantSolve.</span></div>}
+      {sections.map(([label, value], i) => (
+        <div key={label}>
+          {i > 0 && <div className="advice-divider" style={{margin:"10px 0"}} />}
+          <div className="advice-label">{label}</div>
+          <div className="advice-text">{value}</div>
+        </div>
+      ))}
+      <button className="btn btn-primary" style={{marginTop:14}} onClick={() => onAddToReminders({ name: plant.common_name, freq: 7 })}>💧 Set up watering reminder</button>
+      <div className="sci-name" style={{fontSize:11,marginBottom:0}}>
+        Care data from <a href={pageUrl} target="_blank" rel="noopener noreferrer">PlantSolve</a> (<a href="https://www.plantsolve.com" target="_blank" rel="noopener noreferrer">PlantSolve Open Dataset</a>, CC BY 4.0). Adjust the reminder interval to match the watering tip.
+      </div>
+    </div>
+  );
+}
+
 function MyPlantsTab({ onAddToReminders }) {
   const [plants, setPlants] = useState(() => {
     try { return JSON.parse(localStorage.getItem("plantpal_db") || "[]"); }
     catch { return []; }
   });
+
+  const [openId, setOpenId] = useState(null);
 
   const remove = (id) => {
     const updated = plants.filter(p => p.id !== id);
@@ -445,10 +658,16 @@ function MyPlantsTab({ onAddToReminders }) {
                   <div className={`badge badge-${(p.confidence||"low").toLowerCase()}`} style={{marginTop:4,display:"inline-block"}}>{p.confidence}</div>
                 </div>
                 <div className="db-card-actions">
+                  <button className="action-btn action-cal" onClick={() => setOpenId(openId === p.id ? null : p.id)} title="Care Guide">📖</button>
                   <button className="action-btn action-cal" onClick={() => onAddToReminders({ name: p.common_name, freq: 7 })} title="Add to Reminders">💧</button>
                   <button className="action-btn action-remove" onClick={() => remove(p.id)} title="Delete">✕</button>
                 </div>
               </div>
+              {openId === p.id && (
+                <div style={{marginTop:12,paddingTop:12,borderTop:"1px solid var(--gray-100)"}}>
+                  <CareGuide plant={p} onAddToReminders={onAddToReminders} />
+                </div>
+              )}
             </div>
           </div>
         ))}
