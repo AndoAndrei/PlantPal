@@ -1,6 +1,9 @@
 // Looks up a plant in the Perenual database and returns a cleaned care summary.
 // Needs the PERENUAL_API_KEY environment variable. Plant data: https://perenual.com
 const BASE = "https://perenual.com/api/v2";
+const GUIDE_URL = "https://perenual.com/api/species-care-guide-list";
+// The current plan only unlocks details and care guides for species IDs 1 to 3000.
+const FREE_MAX_ID = 3000;
 const LOCKED = /upgrade|subscription|premium|supreme/i;
 
 // Free-tier responses replace locked fields with an "Upgrade Plans..." string, so drop those.
@@ -55,12 +58,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ found: false });
     }
 
-    // Details may be limited on the free plan, so fall back to the list entry field by field.
+    // Details and care guides are only unlocked for IDs up to FREE_MAX_ID, so skip the
+    // extra requests (and save the daily quota) for anything above that.
     let d = null;
-    try {
-      const r = await fetch(`${BASE}/species/details/${hit.id}?key=${encodeURIComponent(key)}`);
-      if (r.ok) { const j = await r.json(); if (j && j.id) d = j; }
-    } catch {}
+    const guide = {};
+    if (hit.id <= FREE_MAX_ID) {
+      const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      const [details, care] = await Promise.all([
+        getJSON(`${BASE}/species/details/${hit.id}?key=${encodeURIComponent(key)}`),
+        getJSON(`${GUIDE_URL}?key=${encodeURIComponent(key)}&species_id=${hit.id}`)
+      ]);
+      if (details && details.id) d = details;
+      const sections = care && Array.isArray(care.data) && care.data[0] && Array.isArray(care.data[0].section) ? care.data[0].section : [];
+      for (const s of sections) {
+        if (s && ["watering", "sunlight", "pruning"].includes(s.type)) {
+          const t = clean(s.description);
+          if (t) guide[s.type] = t;
+        }
+      }
+    }
 
     const text = (k) => clean(d && d[k]) || clean(hit[k]);
     const list_ = (k) => { const a = cleanList(d && d[k]); return a.length ? a : cleanList(hit[k]); };
@@ -84,7 +100,10 @@ export default async function handler(req, res) {
       care_level: text("care_level"),
       growth_rate: text("growth_rate"),
       maintenance: text("maintenance"),
-      description: text("description")
+      description: text("description"),
+      guide_watering: guide.watering || "",
+      guide_sunlight: guide.sunlight || "",
+      guide_pruning: guide.pruning || ""
     });
   } catch (err) {
     if (err.status === 429) return res.status(429).json({ error: "rate_limited" });
