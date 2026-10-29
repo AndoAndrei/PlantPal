@@ -213,7 +213,10 @@
     ::view-transition-group(root) { animation-duration: .3s; }
     .vt .sheet:not(.pop) { animation: none; }
     .pop-scrim { z-index: 50; } .pop { z-index: 51; max-height: 85vh; }
-    .pop-head { position: sticky; top: 0; background: var(--bg); display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 8px; z-index: 2; }
+    .pop-head { position: sticky; top: 0; background: var(--bg); display: flex; justify-content: space-between; align-items: center; padding: 26px 18px 8px; z-index: 2; }
+    .pop-head::before { content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 40px; height: 5px; border-radius: 3px; background: var(--gray-200); }
+    .sheet-grab { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.8); z-index: 3; box-shadow: 0 0 4px rgba(0,0,0,.25); }
+    .sheet, .pop { overscroll-behavior: contain; }
     .pop-head h3 { font-family: var(--serif); font-size: 20px; color: var(--head); }
     .pop-x { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--gray-100); color: var(--ink); cursor: pointer; font-size: 14px; }
     .pop-body { padding: 4px 18px 32px; }
@@ -1176,6 +1179,39 @@ function LogToJournal({ photo, text }) {
   );
 }
 
+// Drag a bottom sheet down to close it. Only starts when the sheet is scrolled to the top.
+function usePullDown(getEl, dismiss, deps) {
+  const dm = useRef(dismiss); dm.current = dismiss;
+  useEffect(() => {
+    const el = getEl(); if (!el) return;
+    let y0 = 0, dy = 0, t1 = 0, on = false;
+    const start = (e) => { if (e.touches.length === 1) { y0 = e.touches[0].clientY; on = false; dy = 0; } };
+    const move = (e) => {
+      const y = e.touches[0].clientY;
+      if (!on) {
+        if (y - y0 > 8 && el.scrollTop <= 0) { on = true; y0 = y; t1 = e.timeStamp; el.style.transition = "none"; el.style.animation = "none"; }
+        else return;
+      }
+      dy = Math.max(0, y - y0);
+      e.preventDefault();
+      el.style.transform = `translate(-50%, ${dy}px)`;
+    };
+    const end = (e) => {
+      if (!on) return; on = false;
+      const v = dy / Math.max(1, e.timeStamp - t1);
+      if (dy > 120 || (dy > 30 && v > 0.6)) { dm.current(el); return; }
+      el.style.transition = "transform .28s cubic-bezier(.2,.8,.2,1)";
+      el.style.transform = "";
+      setTimeout(() => { el.style.transition = ""; }, 300);
+    };
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    return () => { el.removeEventListener("touchstart", start); el.removeEventListener("touchmove", move); el.removeEventListener("touchend", end); el.removeEventListener("touchcancel", end); };
+  }, deps);
+}
+
 function Popup({ title, onClose, children }) {
   const ref = useRef();
   const native = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
@@ -1188,6 +1224,7 @@ function Popup({ title, onClose, children }) {
     return () => { clearTimeout(t); if (native) el.removeEventListener("toggle", onToggle); else window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
   }, []);
   const close = () => { if (native && ref.current.matches(":popover-open")) ref.current.hidePopover(); else onClose(); };
+  usePullDown(() => ref.current, (el) => { el.style.transition = ""; el.style.transform = ""; close(); }, []);
   return (
     <>
       {!native && <div className="scrim pop-scrim" onClick={onClose} />}
@@ -1384,6 +1421,7 @@ function MyPlantsTab({ onAddToReminders, go }) {
     document.startViewTransition(() => { ReactDOM.flushSync(() => setOpenId(null)); const m = heroOf(id); if (m) m.style.viewTransitionName = "plant-hero"; })
       .finished.finally(() => { const m = heroOf(id); if (m) m.style.viewTransitionName = ""; });
   };
+  usePullDown(() => document.querySelector(".sheet:not(.pop)"), () => closePlant(), [openId]);
   const statusOf = (p) => { const r = reminders.find(x => x.name === p.common_name); return r ? waterStatus(r) : null; };
 
   const remove = (p) => {
@@ -1441,6 +1479,7 @@ function MyPlantsTab({ onAddToReminders, go }) {
         <>
           <div className="scrim" onClick={closePlant} />
           <div className="sheet" role="dialog" aria-label={open.common_name}>
+            <div className="sheet-grab" />
             <button className="sheet-close" onClick={closePlant} aria-label="Close">✕</button>
             {open.photo ? <img className="sheet-img" style={{ viewTransitionName: "plant-hero" }} src={open.photo} alt={open.common_name} /> : <div className="sheet-img" style={{ viewTransitionName: "plant-hero" }}>🌿</div>}
             <div className="sheet-body">
