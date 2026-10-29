@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#1f4d36" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0e1913" media="(prefers-color-scheme: dark)" />
   <meta name="author" content="Andrei Ando" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -22,7 +24,7 @@
       --green-50: #f1f6f1; --green-100: #e3efe5; --green-200: #c9dfcd; --green-500: #3f8f5f; --green-600: #2f7a4d; --green-700: #1f4d36; --green-900: #1b2a21;
       --amber-100: #f6e7bd; --amber-800: #7a5412; --red-100: #f6dcd2; --red-700: #9a3a1c;
       --gray-50: #faf8f3; --gray-100: #eeeadf; --gray-200: #e0dbcc; --gray-400: #98a29b; --gray-500: #6d7a71; --gray-700: #3c4a41; --gray-900: #1b2a21;
-      --serif: 'Fraunces', Georgia, serif; --r: 20px;
+      --head: #1f4d36; --serif: 'Fraunces', Georgia, serif; --r: 20px;
     }
     html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
     #root { min-height: 100vh; }
@@ -30,36 +32,36 @@
     .view { animation: fadeUp .28s ease both; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .tab-content { padding: calc(env(safe-area-inset-top, 0px) + 26px) 18px 130px; }
-    .tab-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--forest); margin-bottom: 4px; letter-spacing: -0.5px; }
+    .tab-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--head); margin-bottom: 4px; letter-spacing: -0.5px; }
     .tab-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
     .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
     .section-h { display: flex; justify-content: space-between; align-items: baseline; margin: 26px 0 10px; }
-    .section-h h3 { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--forest); }
+    .section-h h3 { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--head); }
     .link-btn { border: none; background: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--leaf); cursor: pointer; padding: 6px 0; }
     /* bottom nav */
     .tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; align-items: flex-end; background: rgba(255,253,249,.94); backdrop-filter: blur(16px); border-top: 1px solid var(--line); padding: 8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px); z-index: 30; }
     .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: none; background: none; font-family: inherit; color: var(--gray-400); cursor: pointer; padding: 6px 0; min-height: 48px; transition: color .15s; }
     .tab-btn .ico { font-size: 21px; filter: grayscale(1) opacity(.6); transition: filter .15s, transform .15s; }
     .tab-btn .lbl { font-size: 11px; font-weight: 700; }
-    .tab-btn.active { color: var(--forest); }
+    .tab-btn.active { color: var(--head); }
     .tab-btn.active .ico { filter: none; transform: translateY(-1px); }
     .tab-scan .fab { width: 58px; height: 58px; border-radius: 50%; margin-top: -26px; background: linear-gradient(145deg, var(--leaf), var(--forest)); display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 8px 22px rgba(31,77,54,.35); border: 4px solid var(--bg); transition: transform .15s; }
     .tab-scan:active .fab { transform: scale(.94); }
-    .tab-scan .lbl { color: var(--forest); }
+    .tab-scan .lbl { color: var(--head); }
     /* home */
     .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
     .brand-logo { height: 40px; width: auto; display: block; }
-    .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--forest); }
-    .greeting { font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--forest); line-height: 1.1; letter-spacing: -.8px; margin: 4px 0 6px; }
+    .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--head); }
+    .greeting { font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--head); line-height: 1.1; letter-spacing: -.8px; margin: 4px 0 6px; }
     .hero { background: linear-gradient(150deg, #2f7a4d 0%, #1f4d36 100%); color: #fff; border-radius: 26px; padding: 22px 20px; margin: 20px 0 4px; position: relative; overflow: hidden; }
     .hero::after { content: "🌿"; position: absolute; right: -10px; bottom: -22px; font-size: 120px; opacity: .14; transform: rotate(-12deg); }
     .hero h2 { font-family: var(--serif); font-size: 23px; font-weight: 600; margin-bottom: 6px; }
     .hero p { font-size: 14px; opacity: .85; line-height: 1.45; margin-bottom: 16px; max-width: 260px; }
-    .hero-btn { background: #fff; color: var(--forest); border: none; border-radius: 14px; padding: 13px 20px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px; position: relative; z-index: 1; }
+    .hero-btn { background: #fff; color: #1f4d36; border: none; border-radius: 14px; padding: 13px 20px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px; position: relative; z-index: 1; }
     .hero-btn:active { transform: scale(.97); }
     .stats { display: flex; gap: 10px; margin-top: 12px; }
     .stat { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
-    .stat b { display: block; font-family: var(--serif); font-size: 26px; color: var(--forest); font-weight: 600; }
+    .stat b { display: block; font-family: var(--serif); font-size: 26px; color: var(--head); font-weight: 600; }
     .stat span { font-size: 12px; color: var(--muted); font-weight: 600; }
     .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .quick-btn { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-height: 64px; }
@@ -73,13 +75,13 @@
     .plant-name { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .plant-meta { font-size: 12px; color: var(--muted); }
     .status-badge, .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; display: inline-block; }
-    .status-ok, .badge-high { background: var(--mint); color: var(--forest); }
+    .status-ok, .badge-high { background: var(--mint); color: var(--head); }
     .status-today, .badge-medium { background: var(--sun); color: var(--sun-ink); }
     .status-urgent, .badge-low { background: var(--clay); color: var(--clay-ink); }
     .plant-actions { display: flex; gap: 6px; }
     .action-btn { width: 44px; height: 44px; border: none; border-radius: 13px; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: transform .12s; font-family: inherit; font-weight: 700; }
     .action-btn:active { transform: scale(.92); }
-    .action-water { background: #dcecf7; color: #0b5a8a; } .action-cal { background: var(--mint); color: var(--forest); } .action-remove { background: var(--clay); color: var(--clay-ink); font-size: 13px; }
+    .action-water { background: #dcecf7; color: #0b5a8a; } .action-cal { background: var(--mint); color: var(--head); } .action-remove { background: var(--clay); color: var(--clay-ink); font-size: 13px; }
     .db-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .db-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--line); cursor: pointer; text-align: left; padding: 0; font: inherit; transition: transform .15s; }
     .db-card:active { transform: scale(.97); }
@@ -108,34 +110,34 @@
     .btn-primary:disabled { opacity: .6; cursor: default; box-shadow: none; }
     .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
     .input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 13px; font-family: inherit; font-size: 15px; color: var(--ink); background: var(--gray-50); outline: none; transition: border-color .15s; }
-    .input:focus { border-color: var(--leaf); background: #fff; }
+    .input:focus { border-color: var(--leaf); background: var(--card); }
     .input-small { width: 76px; text-align: center; }
     .add-card { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
     .freq-row { display: flex; align-items: center; gap: 8px; } .freq-label { font-size: 14px; color: var(--muted); white-space: nowrap; }
     .result-card, .advice-card { background: var(--card); border-radius: 22px; padding: 18px 16px; margin-top: 16px; border: 1px solid var(--line); animation: fadeUp .3s ease both; }
     .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px; }
-    .common-name { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--forest); }
+    .common-name { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--head); }
     .sci-name { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
     .result-desc { font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px; }
-    .tip-box { display: flex; gap: 8px; background: var(--mint); border-radius: 12px; padding: 11px 12px; font-size: 13px; color: var(--forest); align-items: flex-start; margin-bottom: 10px; line-height: 1.5; }
+    .tip-box { display: flex; gap: 8px; background: var(--mint); border-radius: 12px; padding: 11px 12px; font-size: 13px; color: var(--head); align-items: flex-start; margin-bottom: 10px; line-height: 1.5; }
     .water-suggest { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--gray-700); padding: 10px 0 0; border-top: 1px solid var(--line); }
     .health-issues { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .health-issue { display: flex; gap: 8px; background: #fff4e5; border: 1px solid #f1d4a6; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
-    .health-issue-title { font-weight: 700; color: #8a4b0e; margin-bottom: 2px; } .health-issue-advice { color: #6b4115; line-height: 1.5; }
+    .health-issue { display: flex; gap: 8px; background: var(--sun); border: 1px solid transparent; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+    .health-issue-title { font-weight: 700; color: var(--sun-ink); margin-bottom: 2px; } .health-issue-advice { color: var(--sun-ink); line-height: 1.5; }
     .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
     .symptom-btn { min-height: 48px; padding: 12px 8px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all .15s; }
-    .symptom-btn.active { border-color: var(--leaf); background: var(--mint); color: var(--forest); }
+    .symptom-btn.active { border-color: var(--leaf); background: var(--mint); color: var(--head); }
     .advice-label { font-size: 11px; font-weight: 700; color: var(--leaf); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
     .advice-text { font-size: 14px; color: var(--gray-700); line-height: 1.65; }
     .advice-divider { height: 1px; background: var(--line); margin: 14px 0; }
-    .cal-hint { display: flex; gap: 10px; background: var(--mint); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--forest); line-height: 1.5; }
+    .cal-hint { display: flex; gap: 10px; background: var(--mint); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--head); line-height: 1.5; }
     /* feedback: empty, error, skeleton, toast */
     .empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 34px 24px; text-align: center; background: var(--card); border: 1.5px dashed var(--line); border-radius: 22px; }
-    .empty-state h4 { font-family: var(--serif); font-size: 19px; color: var(--forest); font-weight: 600; }
+    .empty-state h4 { font-family: var(--serif); font-size: 19px; color: var(--head); font-weight: 600; }
     .empty-text { font-size: 14px; color: var(--muted); line-height: 1.5; max-width: 260px; }
     .empty-state .btn { width: auto; padding: 0 24px; margin: 6px 0 0; }
     .error-card { background: var(--clay); color: var(--clay-ink); border-radius: 16px; padding: 14px 16px; font-size: 14px; margin-top: 12px; line-height: 1.5; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
-    .error-card button { background: #fff; color: var(--clay-ink); border: none; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; min-height: 40px; }
+    .error-card button { background: var(--bg); color: var(--clay-ink); border: none; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; min-height: 40px; }
     .skel { background: linear-gradient(90deg, #ece8dc 25%, #f6f3ec 50%, #ece8dc 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite linear; border-radius: 10px; }
     @keyframes shimmer { to { background-position: -200% 0; } }
     .skel-label { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
@@ -164,13 +166,52 @@
     .j-photo { width: 100%; max-height: 220px; object-fit: cover; border-radius: 14px; margin: 6px 0; }
     .j-text { font-size: 14px; line-height: 1.5; color: var(--gray-700); }
     .j-del { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; min-height: 36px; min-width: 36px; }
+    /* tab transitions */
+    .tabbar { view-transition-name: tabbar; }
+    .vt .view { animation: none; }
+    @keyframes vt-out-l { to { opacity: 0; transform: translateX(-28px); } }
+    @keyframes vt-in-r { from { opacity: 0; transform: translateX(28px); } }
+    @keyframes vt-out-r { to { opacity: 0; transform: translateX(28px); } }
+    @keyframes vt-in-l { from { opacity: 0; transform: translateX(-28px); } }
+    html[data-dir="fwd"]::view-transition-old(root) { animation: .22s ease both vt-out-l; }
+    html[data-dir="fwd"]::view-transition-new(root) { animation: .3s cubic-bezier(.2,.8,.2,1) both vt-in-r; }
+    html[data-dir="back"]::view-transition-old(root) { animation: .22s ease both vt-out-r; }
+    html[data-dir="back"]::view-transition-new(root) { animation: .3s cubic-bezier(.2,.8,.2,1) both vt-in-l; }
+    /* native popovers */
+    .pop[popover] { inset: auto auto 0 50%; margin: 0; border: none; padding: 0; height: auto; overflow-y: auto; color: var(--ink); animation: none;
+      transform: translate(-50%, 100%); opacity: 0;
+      transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .2s, display .32s allow-discrete, overlay .32s allow-discrete; }
+    .pop[popover]:popover-open { transform: translate(-50%, 0); opacity: 1; }
+    @starting-style { .pop[popover]:popover-open { transform: translate(-50%, 100%); opacity: 0; } }
+    .pop[popover]::backdrop { background: rgba(20,32,25,.45); opacity: 0; transition: opacity .28s, display .28s allow-discrete, overlay .28s allow-discrete; }
+    .pop[popover]:popover-open::backdrop { opacity: 1; }
+    @starting-style { .pop[popover]:popover-open::backdrop { opacity: 0; } }
+    .toasts[popover] { inset: auto auto calc(env(safe-area-inset-bottom, 0px) + 92px) 50%; margin: 0; padding: 0; border: none; background: transparent; overflow: visible; height: auto; color: inherit; }
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root { color-scheme: dark; --bg: #0e1913; --card: #16241b; --ink: #e9f1ea; --muted: #9db1a3; --line: #27382d; --head: #a9dbb7;
+        --mint: #1d3427; --sun: #3b3114; --sun-ink: #f1d98f; --clay: #40231b; --clay-ink: #f4ab92;
+        --green-50: #16241b; --green-100: #1d3427; --green-200: #2b4a37; --green-700: #a9dbb7; --green-900: #a9dbb7;
+        --gray-50: #122019; --gray-100: #1f2f25; --gray-200: #2c4033; --gray-400: #7f9487; --gray-500: #9db1a3; --gray-700: #c6d5ca; --gray-900: #e9f1ea; }
+      .tabbar { background: rgba(22,36,27,.92); }
+      .tab-btn { color: #7f9487; }
+      .fab { border-color: var(--bg); }
+      .plant-card.urgent { background: #2a2412; border-color: #5a4a1c; }
+      .action-water { background: #1b3342; color: #8cc8ee; }
+      .sheet-close { background: rgba(14,25,19,.8); color: var(--ink); }
+      .skel { background: linear-gradient(90deg, #1b2c21 25%, #24392b 50%, #1b2c21 75%); background-size: 200% 100%; }
+      .toast { background: #25503a; }
+      .hero-btn { background: #eaf3ec; }
+      .zoom-box { border-color: var(--leaf); }
+      .pop-x { color: var(--ink); }
+    }
     ::view-transition-group(plant-hero) { animation-duration: .4s; animation-timing-function: cubic-bezier(.2,.8,.2,1); overflow: hidden; }
     ::view-transition-old(plant-hero), ::view-transition-new(plant-hero) { height: 100%; object-fit: cover; }
     ::view-transition-group(root) { animation-duration: .3s; }
     .vt .sheet:not(.pop) { animation: none; }
     .pop-scrim { z-index: 50; } .pop { z-index: 51; max-height: 85vh; }
     .pop-head { position: sticky; top: 0; background: var(--bg); display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 8px; z-index: 2; }
-    .pop-head h3 { font-family: var(--serif); font-size: 20px; color: var(--forest); }
+    .pop-head h3 { font-family: var(--serif); font-size: 20px; color: var(--head); }
     .pop-x { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--gray-100); cursor: pointer; font-size: 14px; }
     .pop-body { padding: 4px 18px 8px; }
     .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 4px; }
@@ -450,6 +491,8 @@ function IdentifyTab({ onAddPlant }) {
   const [saved, setSaved] = useState(false);
   const [source, setSource] = useState(null);
   const cropRef = useRef(null);
+  const resRef = useRef(null);
+  useEffect(() => { if ((loading || result || error) && resRef.current) resRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); }, [loading, result, error]);
   const fileRef = useRef();
 
   const handleFile = async (file) => {
@@ -520,6 +563,7 @@ function IdentifyTab({ onAddPlant }) {
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleFile(e.target.files[0]); e.target.value = ""; }} />
       {source && !loading && <button className="btn btn-primary" onClick={identify}>Identify Plant</button>}
       {source && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
+      <div ref={resRef} style={{ scrollMarginTop: 14 }} />
       {loading && <SkeletonResult label="Analysing your plant" />}
       {error && <ErrorCard message={error} onRetry={identify} />}
       {result && !loading && (
@@ -572,6 +616,8 @@ function HealthTab() {
   const [error, setError] = useState(null);
   const [source, setSource] = useState(null);
   const cropRef = useRef(null);
+  const resRef = useRef(null);
+  useEffect(() => { if ((loading || diag || error) && resRef.current) resRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); }, [loading, diag, error]);
   const fileRef = useRef();
   const advice = SYMPTOMS.find(s => s.id === symptom);
 
@@ -614,6 +660,7 @@ function HealthTab() {
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleFile(e.target.files[0]); e.target.value = ""; }} />
       {source && !loading && <button className="btn btn-primary" onClick={diagnose}>Diagnose Disease or Pest</button>}
       {source && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
+      <div ref={resRef} style={{ scrollMarginTop: 14 }} />
       {loading && <SkeletonResult label="Checking for diseases and pests" />}
       {error && <ErrorCard message={error} onRetry={diagnose} />}
       {diag && !loading && (
@@ -1125,21 +1172,76 @@ function LogToJournal({ photo, text }) {
 }
 
 function Popup({ title, onClose, children }) {
+  const ref = useRef();
+  const native = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
   useEffect(() => {
-    const k = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", k);
     const prev = document.body.style.overflow; document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
+    const el = ref.current; let t;
+    const onToggle = (e) => { if (e.newState === "closed") t = setTimeout(onClose, 300); };
+    if (native) { try { el.showPopover(); } catch {} el.addEventListener("toggle", onToggle); }
+    else { var k = (e) => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); }
+    return () => { clearTimeout(t); if (native) el.removeEventListener("toggle", onToggle); else window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
   }, []);
+  const close = () => { if (native && ref.current.matches(":popover-open")) ref.current.hidePopover(); else onClose(); };
   return (
     <>
-      <div className="scrim pop-scrim" onClick={onClose} />
-      <div className="sheet pop" role="dialog" aria-label={title}>
-        <div className="pop-head"><h3>{title}</h3><button className="pop-x" onClick={onClose} aria-label="Close">✕</button></div>
+      {!native && <div className="scrim pop-scrim" onClick={onClose} />}
+      <div ref={ref} popover={native ? "auto" : undefined} className="sheet pop" role="dialog" aria-label={title}>
+        <div className="pop-head"><h3>{title}</h3><button className="pop-x" onClick={close} aria-label="Close">✕</button></div>
         <div className="pop-body">{children}</div>
       </div>
     </>
   );
+}
+
+// ---- Backup and restore ----
+const BACKUP_KEYS = ["plantpal_db", "plantpal_v2", "plantpal_journal"];
+function makeBackup() {
+  const data = {};
+  BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v) data[k] = JSON.parse(v); } catch {} });
+  return { app: "PlantPal", version: 1, exported: new Date().toISOString(), data };
+}
+async function exportBackup() {
+  const name = `plant-pal-backup-${today()}.json`;
+  const blob = new Blob([JSON.stringify(makeBackup())], { type: "application/json" });
+  const file = new File([blob], name, { type: "application/json" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Plant Pal backup" });
+      localStorage.setItem("plantpal_lastbackup", today());
+      return true;
+    }
+  } catch (e) { if (e.name === "AbortError") return false; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  localStorage.setItem("plantpal_lastbackup", today());
+  return true;
+}
+function importBackup(text) {
+  const b = JSON.parse(text);
+  if (!b || b.app !== "PlantPal" || typeof b.data !== "object") throw new Error("not a backup");
+  const read = (k, fallback) => { try { return JSON.parse(localStorage.getItem(k)) ?? fallback; } catch { return fallback; } };
+  const mergeList = (k) => {
+    const incoming = Array.isArray(b.data[k]) ? b.data[k] : [];
+    const cur = read(k, []); const ids = new Set(cur.map(x => x.id));
+    const add = incoming.filter(x => x && !ids.has(x.id));
+    localStorage.setItem(k, JSON.stringify([...cur, ...add]));
+    return add.length;
+  };
+  const plants = mergeList("plantpal_db"), reminders = mergeList("plantpal_v2");
+  let entries = 0;
+  const inJ = b.data.plantpal_journal && typeof b.data.plantpal_journal === "object" ? b.data.plantpal_journal : {};
+  const j = read("plantpal_journal", {});
+  Object.keys(inJ).forEach(pid => {
+    const have = new Set((j[pid] || []).map(e => e.id));
+    const add = (inJ[pid] || []).filter(e => e && !have.has(e.id));
+    entries += add.length;
+    j[pid] = [...(j[pid] || []), ...add].sort((x, y) => y.id - x.id);
+  });
+  localStorage.setItem("plantpal_journal", JSON.stringify(j));
+  return { plants, reminders, entries };
 }
 
 function Home({ go }) {
@@ -1159,7 +1261,7 @@ function Home({ go }) {
 
   return (
     <div className="tab-content">
-      <div className="brand"><img className="brand-logo" src="/logo-horizontal.png" alt="Plant Pal" /><span className="eyebrow">{dateStr}</span></div>
+      <div className="brand"><picture><source media="(prefers-color-scheme: dark)" srcSet="/logo-horizontal-dark.png" /><img className="brand-logo" src="/logo-horizontal.png" alt="Plant Pal" /></picture><span className="eyebrow">{dateStr}</span></div>
       <h1 className="greeting">{hello}.</h1>
       <p className="tab-sub" style={{ marginBottom: 0 }}>
         {plants.length === 0 ? "Let's meet your first plant." : due.length ? `${due.length} plant${due.length > 1 ? "s need" : " needs"} water today.` : "Everything is watered. Nice work."}
@@ -1233,6 +1335,17 @@ function MyPlantsTab({ onAddToReminders, go }) {
   const [reminders] = useLocalStorage("plantpal_v2", []);
   const [openId, setOpenId] = useState(null);
   const [pop, setPop] = useState(null);
+  const [showBackup, setShowBackup] = useState(false);
+  const restoreRef = useRef();
+  const lastBackup = localStorage.getItem("plantpal_lastbackup");
+  const onRestore = async (e) => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    try {
+      const r = await importBackup(await f.text());
+      window.toast(`Restored ${r.plants} plants, ${r.reminders} reminders, ${r.entries} journal entries`);
+      setTimeout(() => location.reload(), 1400);
+    } catch { window.toast("That file is not a Plant Pal backup."); }
+  };
   const open = plants.find(p => p.id === openId);
   const jCount = open ? (readJournal()[open.id] || []).length : 0;
   const heroOf = (id) => { const c = document.querySelector(`[data-plant="${id}"]`); return c && c.firstElementChild; };
@@ -1263,7 +1376,10 @@ function MyPlantsTab({ onAddToReminders, go }) {
 
   return (
     <div className="tab-content">
-      <h2 className="tab-title">My Plants</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+        <h2 className="tab-title">My Plants</h2>
+        <button className="link-btn" style={{ minHeight: 44 }} onClick={() => setShowBackup(true)}>💾 Backup</button>
+      </div>
       <p className="tab-sub">{plants.length} plant{plants.length !== 1 ? "s" : ""} in your collection.</p>
       {plants.length === 0 && (
         <div className="empty-state">
@@ -1288,6 +1404,15 @@ function MyPlantsTab({ onAddToReminders, go }) {
           );
         })}
       </div>
+      {showBackup && (
+        <Popup title="Back up your plants" onClose={() => setShowBackup(false)}>
+          <p className="tab-sub">Saves your plants, reminders and journal photos to one file. Keep it in iCloud Drive or Files so you can restore it on any device.</p>
+          <button className="btn btn-primary" onClick={async () => { if (await exportBackup()) { window.toast("💾 Backup saved"); setShowBackup(false); } }}>Save backup file</button>
+          <button className="btn btn-ghost" onClick={() => restoreRef.current.click()}>Restore from a backup</button>
+          <input ref={restoreRef} type="file" accept="application/json,.json" className="hidden" onChange={onRestore} />
+          <div className="sci-name" style={{ marginTop: 6 }}>{lastBackup ? "Last backup: " + niceDate(lastBackup) : "You have not made a backup yet."} Restoring adds anything missing and never deletes what is already here.</div>
+        </Popup>
+      )}
       {open && pop === "journal" && <Popup title={open.common_name + " journal"} onClose={() => setPop(null)}><Journal key={open.id} plantId={open.id} since={open.date_saved} /></Popup>}
       {open && pop === "care" && <Popup title="Care guide" onClose={() => setPop(null)}><CareGuide plant={open} onAddToReminders={onAddToReminders} /></Popup>}
       {open && (
@@ -1317,10 +1442,13 @@ function MyPlantsTab({ onAddToReminders, go }) {
   );
 }
 
+const TAB_ORDER = ["home", "myplants", "identify", "health", "reminders"];
+
 function App() {
   const [tab, setTab] = useState("home");
   const [pending, setPending] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const toastRef = useRef();
   useEffect(() => {
     const h = (e) => {
       const id = Date.now() + Math.random();
@@ -1330,20 +1458,36 @@ function App() {
     window.addEventListener("pp-toast", h);
     return () => window.removeEventListener("pp-toast", h);
   }, []);
-  useEffect(() => { if (document.startViewTransition) document.documentElement.classList.add("vt"); }, []);
+  useEffect(() => {
+    if (document.startViewTransition) document.documentElement.classList.add("vt");
+    const off = () => window.toast("You are offline. Saved plants still work."), on = () => window.toast("Back online");
+    window.addEventListener("offline", off); window.addEventListener("online", on);
+    return () => { window.removeEventListener("offline", off); window.removeEventListener("online", on); };
+  }, []);
+  useEffect(() => {
+    const el = toastRef.current;
+    if (el && el.showPopover && toasts.length) { try { el.hidePopover(); } catch {} try { el.showPopover(); } catch {} }
+  }, [toasts.length]);
   useEffect(() => { window.scrollTo(0, 0); }, [tab]);
-  const goReminder = (plant) => { setPending(plant); setTab("reminders"); };
+  const changeTab = (t) => {
+    if (t === tab) return;
+    if (!document.startViewTransition) { setTab(t); return; }
+    document.documentElement.dataset.dir = TAB_ORDER.indexOf(t) > TAB_ORDER.indexOf(tab) ? "fwd" : "back";
+    document.startViewTransition(() => { ReactDOM.flushSync(() => setTab(t)); window.scrollTo(0, 0); })
+      .finished.finally(() => { delete document.documentElement.dataset.dir; });
+  };
+  const goReminder = (plant) => { setPending(plant); changeTab("reminders"); };
   const TABS = [["home", "🏡", "Home"], ["myplants", "🌿", "Plants"], ["identify", "📷", "Scan"], ["health", "🩺", "Health"], ["reminders", "💧", "Water"]];
   return (
     <div className="app">
       <main key={tab} className="view">
-        {tab === "home" && <Home go={setTab} />}
+        {tab === "home" && <Home go={changeTab} />}
         {tab === "identify" && <IdentifyTab onAddPlant={goReminder} />}
         {tab === "health" && <HealthTab />}
-        {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} go={setTab} />}
-        {tab === "myplants" && <MyPlantsTab onAddToReminders={goReminder} go={setTab} />}
+        {tab === "reminders" && <RemindersTab pending={pending} onPendingClear={() => setPending(null)} go={changeTab} />}
+        {tab === "myplants" && <MyPlantsTab onAddToReminders={goReminder} go={changeTab} />}
       </main>
-      <div className="toasts" aria-live="polite">
+      <div className="toasts" popover="manual" ref={toastRef} aria-live="polite">
         {toasts.map(t => (
           <div key={t.id} className="toast"><span>{t.msg}</span>
             {t.action && <button onClick={() => { t.action.fn(); setToasts(x => x.filter(y => y.id !== t.id)); }}>{t.action.label}</button>}
@@ -1352,7 +1496,7 @@ function App() {
       </div>
       <nav className="tabbar" aria-label="Main">
         {TABS.map(([id, icon, label]) => (
-          <button key={id} className={`tab-btn ${id === "identify" ? "tab-scan" : ""} ${tab === id ? "active" : ""}`} onClick={() => setTab(id)} aria-current={tab === id ? "page" : undefined}>
+          <button key={id} className={`tab-btn ${id === "identify" ? "tab-scan" : ""} ${tab === id ? "active" : ""}`} onClick={() => changeTab(id)} aria-current={tab === id ? "page" : undefined}>
             {id === "identify" ? <span className="fab">{icon}</span> : <span className="ico">{icon}</span>}
             <span className="lbl">{label}</span>
           </button>
@@ -1365,6 +1509,7 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 <script>
+  if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
   (function() {
     const code = document.getElementById("app-source").textContent;
     const result = Babel.transform(code, { presets: [["react", { runtime: "classic" }]] });
