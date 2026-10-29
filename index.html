@@ -166,6 +166,9 @@
     .j-photo { width: 100%; max-height: 220px; object-fit: cover; border-radius: 14px; margin: 6px 0; }
     .j-text { font-size: 14px; line-height: 1.5; color: var(--gray-700); }
     .j-del { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; min-height: 36px; min-width: 36px; }
+    .tip-link { width: 100%; border: none; text-align: left; font: inherit; font-size: 13px; cursor: pointer; align-items: center; transition: transform .12s; }
+    .tip-link:active { transform: scale(.98); }
+    .tip-link .go { margin-left: auto; font-weight: 700; white-space: nowrap; padding-left: 8px; }
     /* tab transitions */
     .tabbar { view-transition-name: tabbar; }
     .vt .view { animation: none; }
@@ -488,6 +491,7 @@ function IdentifyTab({ onAddPlant }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [added, setAdded] = useState(false);
+  const [showCare, setShowCare] = useState(false);
   const [saved, setSaved] = useState(false);
   const [source, setSource] = useState(null);
   const cropRef = useRef(null);
@@ -564,6 +568,7 @@ function IdentifyTab({ onAddPlant }) {
       {source && !loading && <button className="btn btn-primary" onClick={identify}>Identify Plant</button>}
       {source && <button className="btn btn-ghost" onClick={clear}>Clear</button>}
       <div ref={resRef} style={{ scrollMarginTop: 14 }} />
+      {showCare && result && <Popup title={result.common_name + " care guide"} onClose={() => setShowCare(false)}><CareGuide plant={{ ...result, id: result.scientific_name || result.common_name }} onAddToReminders={(p) => { setShowCare(false); onAddPlant(p); }} /></Popup>}
       {loading && <SkeletonResult label="Analysing your plant" />}
       {error && <ErrorCard message={error} onRetry={identify} />}
       {result && !loading && (
@@ -576,7 +581,7 @@ function IdentifyTab({ onAddPlant }) {
             <div className={`badge badge-${(result.confidence||"low").toLowerCase()}`}>{result.confidence}</div>
           </div>
           {result.brief_description && <p className="result-desc">{result.brief_description}</p>}
-          {result.care_tip && <div className="tip-box"><span>💡</span><span>{result.care_tip}</span></div>}
+          <button className="tip-box tip-link" onClick={() => setShowCare(true)}><span>💡</span><span>{result.care_tip || "Check the care guide for watering and light needs."}</span><span className="go">Care guide ›</span></button>
           {result.watering_frequency_days && (
             <div className="water-suggest"><span>💧</span><span>Suggested watering: every <strong>{result.watering_frequency_days} days</strong></span></div>
           )}
