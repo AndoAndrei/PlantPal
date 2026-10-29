@@ -92,11 +92,11 @@
     /* sheet */
     .scrim { position: fixed; inset: 0; background: rgba(20,32,25,.45); z-index: 40; animation: fade .2s ease both; }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-    .sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; background: var(--bg); border-radius: 28px 28px 0 0; z-index: 41; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); animation: sheetUp .3s cubic-bezier(.2,.8,.2,1) both; }
+    .sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; background: var(--bg); border-radius: 28px 28px 0 0; z-index: 41; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); animation: sheetUp .3s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes sheetUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
     .sheet-img { width: 100%; height: 220px; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 64px; background: var(--mint); border-radius: 28px 28px 0 0; }
     .sheet-body { padding: 18px 18px 0; }
-    .sheet-close { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,253,249,.92); font-size: 16px; cursor: pointer; z-index: 2; }
+    .sheet-close { color: var(--ink); position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,253,249,.92); font-size: 16px; cursor: pointer; z-index: 2; }
     .sheet-actions { display: flex; gap: 8px; margin: 14px 0; }
     /* forms and buttons */
     .dropzone { border: 2px dashed var(--green-200); border-radius: 22px; min-height: 220px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--card); margin-bottom: 12px; transition: border-color .2s, background .2s; }
@@ -181,7 +181,7 @@
     html[data-dir="back"]::view-transition-old(root) { animation: .22s ease both vt-out-r; }
     html[data-dir="back"]::view-transition-new(root) { animation: .3s cubic-bezier(.2,.8,.2,1) both vt-in-l; }
     /* native popovers */
-    .pop[popover] { inset: auto auto 0 50%; margin: 0; border: none; padding: 0; height: auto; overflow-y: auto; color: var(--ink); animation: none;
+    .pop[popover] { inset: auto auto 0 50%; margin: 0; border: none; padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 16px); height: auto; overflow-y: auto; color: var(--ink); animation: none;
       transform: translate(-50%, 100%); opacity: 0;
       transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .2s, display .32s allow-discrete, overlay .32s allow-discrete; }
     .pop[popover]:popover-open { transform: translate(-50%, 0); opacity: 1; }
@@ -215,8 +215,8 @@
     .pop-scrim { z-index: 50; } .pop { z-index: 51; max-height: 85vh; }
     .pop-head { position: sticky; top: 0; background: var(--bg); display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 8px; z-index: 2; }
     .pop-head h3 { font-family: var(--serif); font-size: 20px; color: var(--head); }
-    .pop-x { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--gray-100); cursor: pointer; font-size: 14px; }
-    .pop-body { padding: 4px 18px 8px; }
+    .pop-x { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--gray-100); color: var(--ink); cursor: pointer; font-size: 14px; }
+    .pop-body { padding: 4px 18px 32px; }
     .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 4px; }
     .tile { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 84px; }
     .tile span { font-size: 22px; } .tile b { font-size: 14px; color: var(--ink); } .tile small { font-size: 12px; color: var(--muted); }
@@ -1252,6 +1252,13 @@ function importBackup(text) {
 function Home({ go }) {
   const [plants, setPlants] = useLocalStorage("plantpal_v2", []);
   const saved = readSaved();
+  const total = Math.max(plants.length, saved.length);
+  const addAllReminders = () => {
+    const have = new Set(plants.map(p => p.name));
+    const add = saved.filter(x => !have.has(x.common_name)).map((x, i) => { const b = findBuiltIn(x); return { id: Date.now() + i, name: x.common_name, freq: (b && b.days) || 7, lastWatered: today() }; });
+    setPlants([...plants, ...add]);
+    window.toast(`💧 Reminders set for ${add.length} plant${add.length !== 1 ? "s" : ""}`);
+  };
   const photoFor = (name) => (saved.find(s => s.common_name === name) || {}).photo;
   const due = plants.map(p => ({ p, s: waterStatus(p) })).filter(x => x.s.urgent).sort((a, b) => a.s.diff - b.s.diff);
   const insights = plants.map(p => ({ p, i: careInsight(p) })).filter(x => x.i);
@@ -1269,7 +1276,7 @@ function Home({ go }) {
       <div className="brand"><picture><source media="(prefers-color-scheme: dark)" srcSet="/logo-horizontal-dark.png" /><img className="brand-logo" src="/logo-horizontal.png" alt="Plant Pal" /></picture><span className="eyebrow">{dateStr}</span></div>
       <h1 className="greeting">{hello}.</h1>
       <p className="tab-sub" style={{ marginBottom: 0 }}>
-        {plants.length === 0 ? "Let's meet your first plant." : due.length ? `${due.length} plant${due.length > 1 ? "s need" : " needs"} water today.` : "Everything is watered. Nice work."}
+        {total === 0 ? "Let's meet your first plant." : plants.length === 0 ? `You have ${saved.length} plant${saved.length > 1 ? "s" : ""} saved.` : due.length ? `${due.length} plant${due.length > 1 ? "s need" : " needs"} water today.` : "Everything is watered. Nice work."}
       </p>
 
       <div className="hero">
@@ -1278,9 +1285,9 @@ function Home({ go }) {
         <button className="hero-btn" onClick={() => go("identify")}>📷 Scan a plant</button>
       </div>
 
-      {plants.length > 0 && (
+      {total > 0 && (
         <div className="stats">
-          <div className="stat"><b>{plants.length}</b><span>Plants</span></div>
+          <div className="stat"><b>{total}</b><span>Plants</span></div>
           <div className="stat"><b>{due.length}</b><span>Due today</span></div>
         </div>
       )}
@@ -1289,9 +1296,19 @@ function Home({ go }) {
       {plants.length === 0 ? (
         <div className="empty-state">
           <div style={{ fontSize: 44 }}>🪴</div>
-          <h4>No plants yet</h4>
-          <div className="empty-text">Scan a plant to identify it, then set up watering reminders.</div>
-          <button className="btn btn-primary" onClick={() => go("identify")}>Scan your first plant</button>
+          {saved.length === 0 ? (
+            <>
+              <h4>No plants yet</h4>
+              <div className="empty-text">Scan a plant to identify it, then set up watering reminders.</div>
+              <button className="btn btn-primary" onClick={() => go("identify")}>Scan your first plant</button>
+            </>
+          ) : (
+            <>
+              <h4>No watering reminders yet</h4>
+              <div className="empty-text">You have {saved.length} saved plant{saved.length > 1 ? "s" : ""}. Set up reminders and they will show here when they need water.</div>
+              <button className="btn btn-primary" onClick={addAllReminders}>Set up watering reminders</button>
+            </>
+          )}
         </div>
       ) : due.length === 0 ? (
         <div className="empty-state"><div style={{ fontSize: 40 }}>🌤️</div><h4>All caught up</h4><div className="empty-text">Nothing to water today. We will let you know when it is time.</div></div>
